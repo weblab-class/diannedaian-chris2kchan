@@ -9,7 +9,7 @@ import { socket } from "../client-socket";
 
 import { get, post } from "../utilities";
 
-export const UserContext = createContext(null);
+export const UserContext = createContext();
 
 /**
  * Define the "App" component

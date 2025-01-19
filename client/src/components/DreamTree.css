@@ -1,0 +1,41 @@
+.tree-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #0b1a2a; /* Dark night sky */
+  }
+
+  .tree-bg {
+    position: absolute;
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+  }
+
+  .dream-catcher {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+  }
+
+  .dream-catcher img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .dream-date {
+    position: absolute;
+    top: -20px;
+    color: white;
+    font-size: 14px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .dream-text {
+    font-size: 12px;
+    color: white;
+    text-align: center;
+    margin-top: 5px;
+  }
