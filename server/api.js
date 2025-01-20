@@ -18,6 +18,8 @@ const auth = require("./auth");
 // api endpoints: all these paths will be prefixed with "/api/"
 const router = express.Router();
 
+const Dream = require("./models/dream"); // Import the Dream model
+
 //initialize socket
 const socketManager = require("./server-socket");
 
