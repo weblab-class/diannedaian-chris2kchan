@@ -47,7 +47,6 @@ router.post("/initsocket", (req, res) => {
 const axios = require("axios");
 require("dotenv").config();
 
-const router = express.Router();
 router.post("/generate-dream-image", async (req, res) => {
   try {
     const { prompt } = req.body; // Get dream description from frontend
