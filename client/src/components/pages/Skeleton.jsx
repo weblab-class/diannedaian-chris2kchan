@@ -18,7 +18,7 @@ const Skeleton = () => {
 
   // fetchs the dreams on log for the user logging in
   useEffect(() => {
-    if (userID) {
+    if (userId) {
       fetch(`/api/get-dreams/${userId}`)
         .then((res) => res.json())
         .then((data) => setDreams(data))
@@ -101,7 +101,7 @@ const Skeleton = () => {
               <span>{new Date(dream.date).toLocaleDateString()}</span>
             </div>
           ))}
-          
+
         </>
       ) : (
         <GoogleLogin onSuccess={handleLogin} onError={(err) => console.log(err)} />
