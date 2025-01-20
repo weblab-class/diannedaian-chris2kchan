@@ -44,7 +44,6 @@ router.post("/initsocket", (req, res) => {
 // |------------------------------|
 
 // OpenAI DALLE Image Generation Endpoint
-const express = require("express");
 const axios = require("axios");
 require("dotenv").config();
 
