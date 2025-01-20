@@ -14,6 +14,19 @@ const Skeleton = () => {
   const [inputText, setInputText] = useState(""); // Stores user input
   const [imageUrl, setImageUrl] = useState(""); // Stores AI-generated image
 
+  const [dreams, setDreams] = useState([]); // Stores user's saved dreams
+
+  // fetchs the dreams on log for the user logging in
+  useEffect(() => {
+    if (userID) {
+      fetch(`/api/get-dreams/${userId}`)
+        .then((res) => res.json())
+        .then((data) => setDreams(data))
+        .catch((err) => console.error("Error fetching dreams:", err));
+    }
+  }, [userId]);
+
+
   const generateImage = async () => {
     if (!inputText) return; // Prevent empty input
 
@@ -26,6 +39,27 @@ const Skeleton = () => {
     const data = await response.json();
     setImageUrl(data.imageUrl); // Store generated image URL
   };
+
+
+
+  const saveDream = async () => {
+    if (!inputText || !userId) return;
+
+    const response = await fetch("/api/save-dream", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, text: inputText, imageUrl }),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      setDreams([data.dream, ...dreams]); // Add new dream to the UI
+      setInputText(""); // Clear input
+      setImageUrl(""); // Clear image
+    }
+  };
+
+
 
   return (
     <div className="skeleton-container">
@@ -52,10 +86,22 @@ const Skeleton = () => {
                 onChange={(e) => setInputText(e.target.value)}
               />
               <button className="generate-button" onClick={generateImage}>Generate Image</button>
+              {imageUrl && <button className="save-button" onClick={saveDream}>Log Dream</button>}
             </div>
           )}
 
           {imageUrl && <img src={imageUrl} alt="Generated Dream" className="dream-image" />}
+
+          {/* Display Saved Dreams */}
+          <h2>Your Dream Journal</h2>
+          {dreams.map((dream) => (
+            <div key={dream._id} className="dream-entry">
+              <p>{dream.text}</p>
+              {dream.imageUrl && <img src={dream.imageUrl} alt="Dream" />}
+              <span>{new Date(dream.date).toLocaleDateString()}</span>
+            </div>
+          ))}
+          
         </>
       ) : (
         <GoogleLogin onSuccess={handleLogin} onError={(err) => console.log(err)} />

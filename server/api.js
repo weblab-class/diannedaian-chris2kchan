@@ -86,6 +86,35 @@ router.post("/generate-dream-image", async (req, res) => {
 });
 
 
+// Saving user dreams
+router.post("/save-dream", async (req, res) => {
+  try {
+    const { userId, text, imageUrl, public } = req.body;
+    if (!userId || !text) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const newDream = new Dream({ userId, text, imageUrl, public });
+    await newDream.save();
+    res.json({ success: true, dream: newDream });
+  } catch (error) {
+    console.error("Error saving dream:", error);
+    res.status(500).json({ error: "Failed to save dream" });
+  }
+});
+
+// Retrieving user dreams
+router.get("/get-dreams/:userId", async (req, res) => {
+  try {
+    const dreams = await Dream.find({ userId: req.params.userId }).sort({ date: -1 });
+    res.json(dreams);
+  } catch (error) {
+    console.error("Error fetching dreams:", error);
+    res.status(500).json({ error: "Failed to fetch dreams" });
+  }
+});
+
+
 
 
 // anything else falls to this "not found" case
