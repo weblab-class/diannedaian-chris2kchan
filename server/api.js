@@ -45,7 +45,6 @@ router.post("/initsocket", (req, res) => {
 
 // OpenAI DALLE Image Generation Endpoint
 const axios = require("axios");
-require("dotenv").config();
 
 router.post("/generate-dream-image", async (req, res) => {
   try {
