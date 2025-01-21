@@ -108,10 +108,12 @@ router.post("/save-dream", async (req, res) => {
 // Retrieving user dreams
 router.get("/get-dreams/:userId", async (req, res) => {
   try {
+    console.log(`📡 Received GET request for userId: ${req.params.userId}`); // Debugging log
     const dreams = await Dream.find({ userId: req.params.userId }).sort({ date: -1 });
+    console.log(`✅ Found ${dreams.length} dreams for user ${req.params.userId}`);
     res.json(dreams);
   } catch (error) {
-    console.error("Error fetching dreams:", error);
+    console.error("❌ Error fetching dreams:", error);
     res.status(500).json({ error: "Failed to fetch dreams" });
   }
 });

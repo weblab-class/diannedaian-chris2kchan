@@ -19,9 +19,17 @@ const Skeleton = () => {
   // fetchs the dreams on log for the user logging in
   useEffect(() => {
     if (userId) {
+      console.log(`📡 Fetching dreams for userId: ${userId}`); // Debugging log
+
       fetch(`https://your-render-backend-url.com/api/get-dreams/${userId}`)
-        .then((res) => res.json())
-        .then((data) => setDreams(data))
+        .then((res) => {
+          console.log("📡 API Response:", res.status); // Log response status
+          return res.json();
+        })
+        .then((data) => {
+          console.log("✅ Received dreams data:", data);
+          setDreams(data);
+        })
         .catch((err) => console.error("❌ Error fetching dreams:", err));
     }
   }, [userId]);
