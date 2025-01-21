@@ -19,12 +19,14 @@ const Skeleton = () => {
   // fetchs the dreams on log for the user logging in
   useEffect(() => {
     if (userId) {
-      fetch(`/api/get-dreams/${userId}`)
+      fetch(`https://your-render-backend-url.com/api/get-dreams/${userId}`)
         .then((res) => res.json())
         .then((data) => setDreams(data))
-        .catch((err) => console.error("Error fetching dreams:", err));
+        .catch((err) => console.error("❌ Error fetching dreams:", err));
     }
   }, [userId]);
+
+
 
 
   const generateImage = async () => {
@@ -45,7 +47,7 @@ const Skeleton = () => {
   const saveDream = async () => {
     if (!inputText || !userId) return;
 
-    const response = await fetch("/api/save-dream", {
+    const response = await fetch("https://your-render-backend-url.com/api/save-dream", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, text: inputText, imageUrl }),
@@ -53,13 +55,11 @@ const Skeleton = () => {
 
     const data = await response.json();
     if (data.success) {
-      setDreams([data.dream, ...dreams]); // Add new dream to the UI
+      setDreams([data.dream, ...dreams]); // Add new dream to UI
       setInputText(""); // Clear input
       setImageUrl(""); // Clear image
     }
   };
-
-
 
   return (
     <div className="skeleton-container">
