@@ -27,10 +27,10 @@ const Skeleton = () => {
           return res.json();
         })
         .then((data) => {
-          console.log("✅ Received dreams data:", data);
+          console.log("Received dreams data:", data);
           setDreams(data);
         })
-        .catch((err) => console.error("❌ Error fetching dreams:", err));
+        .catch((err) => console.error(" Error fetching dreams:", err));
     }
   }, [userId]);
 
