@@ -57,14 +57,13 @@ const Skeleton = () => {
 
       const data = await response.json();
       const generatedImageUrl = data.imageUrl; // Temporary OpenAI image URL
-
       console.log("Generated image URL:", generatedImageUrl);
 
-      // Step 2: Upload Image to Cloudinary
+      // Step 2: Upload Image to Cloudinary (send the URL)
       const cloudinaryResponse = await fetch(`/api/upload-image`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl: generatedImageUrl }), // Send OpenAI image URL
+        body: JSON.stringify({ imageUrl: generatedImageUrl }), // ✅ Send OpenAI image URL
       });
 
       if (!cloudinaryResponse.ok) {
@@ -73,7 +72,7 @@ const Skeleton = () => {
       }
 
       const cloudinaryData = await cloudinaryResponse.json();
-      setImageUrl(cloudinaryData.imageUrl); // Set Cloudinary URL
+      setImageUrl(cloudinaryData.imageUrl); // ✅ Store Cloudinary URL
 
       console.log("✅ Image uploaded to Cloudinary:", cloudinaryData.imageUrl);
     } catch (error) {
@@ -85,25 +84,46 @@ const Skeleton = () => {
 
 
   const saveDream = async () => {
-    if (!inputText || !userId || !imageUrl) return;
+    if (!inputText || !userId) return;
 
-    console.log(" Sending request to save dream...");
-    console.log("Request Body:", { userId, text: inputText, imageUrl, date: selectedDate });
+    console.log("📡 Sending request to save dream...");
+    console.log("📡 Request Body:", { userId, text: inputText, imageUrl, date: selectedDate });
 
     try {
+      let finalImageUrl = imageUrl; // Start with existing image URL
+
+      // Step 1: Upload image to Cloudinary if needed
+      if (imageUrl && !imageUrl.includes("cloudinary.com")) {
+        // Only upload if not already on Cloudinary
+        const cloudinaryResponse = await fetch(`/api/upload-image`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageUrl }),
+        });
+
+        if (!cloudinaryResponse.ok) {
+          console.error("❌ Error uploading to Cloudinary:", await cloudinaryResponse.text());
+          return;
+        }
+
+        const cloudinaryData = await cloudinaryResponse.json();
+        finalImageUrl = cloudinaryData.imageUrl; // Update to Cloudinary URL
+      }
+
+      // Step 2: Save the dream with Cloudinary image URL
       const response = await fetch(`/api/save-dream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
           text: inputText,
-          imageUrl, // Now using Cloudinary URL
+          imageUrl: finalImageUrl, // Save Cloudinary URL
           date: selectedDate ? selectedDate.toISOString() : new Date().toISOString(),
         }),
       });
 
       if (!response.ok) {
-        console.error("Error saving dream:", await response.text());
+        console.error("❌ Error saving dream:", await response.text());
         return;
       }
 
@@ -116,7 +136,7 @@ const Skeleton = () => {
         console.log("✅ Dream successfully saved!");
       }
     } catch (error) {
-      console.error("Error saving dream:", error);
+      console.error("❌ Error saving dream:", error);
     }
   };
 

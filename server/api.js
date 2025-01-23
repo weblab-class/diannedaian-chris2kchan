@@ -25,7 +25,8 @@ const socketManager = require("./server-socket");
 
 //Import Cloudinary upload routes
 const cloudinaryUpload = require("./cloudinaryUpload");
-router.use("/", cloudinaryUpload);
+router.use(cloudinaryUpload);
+
 
 
 router.post("/login", auth.login);
