@@ -23,6 +23,11 @@ const Dream = require("./models/dream"); // Import the Dream model
 //initialize socket
 const socketManager = require("./server-socket");
 
+//Import Cloudinary upload routes
+const cloudinaryUpload = require("./cloudinaryUpload");
+router.use("/", cloudinaryUpload);
+
+
 router.post("/login", auth.login);
 router.post("/logout", auth.logout);
 router.get("/whoami", (req, res) => {

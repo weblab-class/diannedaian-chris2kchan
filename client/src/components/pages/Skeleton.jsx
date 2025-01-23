@@ -43,6 +43,7 @@ const Skeleton = () => {
     setImageUrl(""); // Clear previous image
 
     try {
+      // Step 1: Generate Image from OpenAI API
       const response = await fetch(`/api/generate-dream-image`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,19 +56,39 @@ const Skeleton = () => {
       }
 
       const data = await response.json();
-      setImageUrl(data.imageUrl); // Store generated image URL
+      const generatedImageUrl = data.imageUrl; // Temporary OpenAI image URL
+
+      console.log("Generated image URL:", generatedImageUrl);
+
+      // Step 2: Upload Image to Cloudinary
+      const cloudinaryResponse = await fetch(`/api/upload-image`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: generatedImageUrl }), // Send OpenAI image URL
+      });
+
+      if (!cloudinaryResponse.ok) {
+        console.error("Error uploading to Cloudinary:", await cloudinaryResponse.text());
+        return;
+      }
+
+      const cloudinaryData = await cloudinaryResponse.json();
+      setImageUrl(cloudinaryData.imageUrl); // Set Cloudinary URL
+
+      console.log("✅ Image uploaded to Cloudinary:", cloudinaryData.imageUrl);
     } catch (error) {
-      console.error("Error generating image:", error);
+      console.error("Error generating or uploading image:", error);
     } finally {
       setIsLoading(false); // Hide loading spinner
     }
   };
 
-  const saveDream = async () => {
-    if (!inputText || !userId) return;
 
-    console.log("📡 Sending request to save dream...");
-    console.log("📡 Request Body:", { userId, text: inputText, imageUrl, date: selectedDate });
+  const saveDream = async () => {
+    if (!inputText || !userId || !imageUrl) return;
+
+    console.log(" Sending request to save dream...");
+    console.log("Request Body:", { userId, text: inputText, imageUrl, date: selectedDate });
 
     try {
       const response = await fetch(`/api/save-dream`, {
@@ -76,7 +97,7 @@ const Skeleton = () => {
         body: JSON.stringify({
           userId,
           text: inputText,
-          imageUrl: imageUrl || "", // ✅ Keep OpenAI URL
+          imageUrl, // Now using Cloudinary URL
           date: selectedDate ? selectedDate.toISOString() : new Date().toISOString(),
         }),
       });
@@ -89,15 +110,16 @@ const Skeleton = () => {
       const data = await response.json();
       if (data.success) {
         setDreams([data.dream, ...dreams]); // Add new dream to UI
-        setInputText(''); // Clear input
-        setImageUrl(''); // Clear image
+        setInputText(""); // Clear input
+        setImageUrl(""); // Clear image
         setSelectedDate(new Date()); // Reset date
-        console.log("Dream succesfully saved!")
+        console.log("✅ Dream successfully saved!");
       }
     } catch (error) {
       console.error("Error saving dream:", error);
     }
   };
+
 
   return (
     <div className="skeleton-container">
