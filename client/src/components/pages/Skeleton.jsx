@@ -37,13 +37,13 @@ const Skeleton = () => {
   }, [userId]);
 
   const generateImage = async () => {
-    if (!inputText) return; // Prevent empty input
+    if (!inputText) return;
 
-    setIsLoading(true); // Show loading spinner
-    setImageUrl(""); // Clear previous image
+    setIsLoading(true);
+    setImageUrl("");
 
     try {
-      // Step 1: Generate Image from OpenAI API
+      console.log("🎨 Generating image...");
       const response = await fetch(`/api/generate-dream-image`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -51,80 +51,49 @@ const Skeleton = () => {
       });
 
       if (!response.ok) {
-        console.error("Error generating image:", await response.text());
-        return;
+        const errorText = await response.text();
+        console.error("❌ Error generating image:", errorText);
+        throw new Error(`Failed to generate image: ${errorText}`);
       }
 
       const data = await response.json();
-      const generatedImageUrl = data.imageUrl; // Temporary OpenAI image URL
-      console.log("Generated image URL:", generatedImageUrl);
-
-      // Step 2: Upload Image to Cloudinary (send the URL)
-      const cloudinaryResponse = await fetch(`/api/upload-image`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl: generatedImageUrl }), // ✅ Send OpenAI image URL
-      });
-
-      if (!cloudinaryResponse.ok) {
-        console.error("Error uploading to Cloudinary:", await cloudinaryResponse.text());
-        return;
-      }
-
-      const cloudinaryData = await cloudinaryResponse.json();
-      setImageUrl(cloudinaryData.imageUrl); // ✅ Store Cloudinary URL
-
-      console.log("✅ Image uploaded to Cloudinary:", cloudinaryData.imageUrl);
+      console.log("✅ Image generated and uploaded:", data);
+      
+      setImageUrl(data.imageUrl);
     } catch (error) {
-      console.error("Error generating or uploading image:", error);
+      console.error("❌ Error in image generation process:", error);
+      // You might want to show this error to the user in the UI
     } finally {
-      setIsLoading(false); // Hide loading spinner
+      setIsLoading(false);
     }
   };
 
-
   const saveDream = async () => {
-    if (!inputText || !userId) return;
+    if (!inputText || !userId || !imageUrl) {
+      console.log("❌ Missing required fields for saving dream");
+      return;
+    }
 
-    console.log("📡 Sending request to save dream...");
+    console.log("📡 Saving dream...");
     console.log("📡 Request Body:", { userId, text: inputText, imageUrl, date: selectedDate });
 
     try {
-      let finalImageUrl = imageUrl; // Start with existing image URL
-
-      // Step 1: Upload image to Cloudinary if needed
-      if (imageUrl && !imageUrl.includes("cloudinary.com")) {
-        // Only upload if not already on Cloudinary
-        const cloudinaryResponse = await fetch(`/api/upload-image`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageUrl }),
-        });
-
-        if (!cloudinaryResponse.ok) {
-          console.error("❌ Error uploading to Cloudinary:", await cloudinaryResponse.text());
-          return;
-        }
-
-        const cloudinaryData = await cloudinaryResponse.json();
-        finalImageUrl = cloudinaryData.imageUrl; // Update to Cloudinary URL
-      }
-
-      // Step 2: Save the dream with Cloudinary image URL
+      // No need to re-upload to Cloudinary - we already have the Cloudinary URL
       const response = await fetch(`/api/save-dream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
           text: inputText,
-          imageUrl: finalImageUrl, // Save Cloudinary URL
+          imageUrl, // Already a Cloudinary URL
           date: selectedDate ? selectedDate.toISOString() : new Date().toISOString(),
         }),
       });
 
       if (!response.ok) {
-        console.error("❌ Error saving dream:", await response.text());
-        return;
+        const errorText = await response.text();
+        console.error("❌ Error saving dream:", errorText);
+        throw new Error(`Failed to save dream: ${errorText}`);
       }
 
       const data = await response.json();
@@ -137,9 +106,9 @@ const Skeleton = () => {
       }
     } catch (error) {
       console.error("❌ Error saving dream:", error);
+      // You might want to show this error to the user in the UI
     }
   };
-
 
   return (
     <div className="skeleton-container">

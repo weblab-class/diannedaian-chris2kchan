@@ -8,17 +8,29 @@
 */
 
 const express = require("express");
+const axios = require("axios");
+const OpenAI = require("openai");
+const fs = require("fs");
+const path = require("path");
+require("dotenv").config();
+
+// Initialize OpenAI client
+if (!process.env.OPENAI_API_KEY) {
+  console.error("❌ Missing OpenAI API key in environment variables!");
+}
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+const router = express.Router();
 
 // import models so we can interact with the database
 const User = require("./models/user");
+const Dream = require("./models/dream"); // Import the Dream model
 
 // import authentication library
 const auth = require("./auth");
-
-// api endpoints: all these paths will be prefixed with "/api/"
-const router = express.Router();
-
-const Dream = require("./models/dream"); // Import the Dream model
 
 //initialize socket
 const socketManager = require("./server-socket");
@@ -26,8 +38,6 @@ const socketManager = require("./server-socket");
 //Import Cloudinary upload routes
 const cloudinaryUpload = require("./cloudinaryUpload");
 router.use(cloudinaryUpload);
-
-
 
 router.post("/login", auth.login);
 router.post("/logout", auth.logout);
@@ -52,61 +62,51 @@ router.post("/initsocket", (req, res) => {
 // |------------------------------|
 
 // OpenAI DALLE Image Generation Endpoint
-const axios = require("axios");
-const fs = require("fs");
-const path = require("path");
-require("dotenv").config();
-
 router.post("/generate-dream-image", async (req, res) => {
   try {
     const { prompt } = req.body;
-
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({ error: "Missing OpenAI API Key" });
+    
+    if (!prompt) {
+      return res.status(400).json({ error: "No prompt provided" });
     }
 
-    const response = await axios.post(
-      "https://api.openai.com/v1/images/generations",
-      {
-        model: "dall-e-2",
-        prompt: prompt,
-        n: 1,
-        size: "1024x1024",
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    console.log("🎨 Generating image with prompt:", prompt);
+    
+    // Generate image using OpenAI
+    const response = await openai.images.generate({
+      model: "dall-e-2",
+      prompt: prompt,
+      n: 1,
+      size: "1024x1024",
+      response_format: "url"
+    });
 
-    if (!response.data?.data?.[0]?.url) {
-      return res.status(500).json({ error: "Invalid response from OpenAI" });
+    if (!response.data || response.data.length === 0) {
+      throw new Error("No image data received from OpenAI");
     }
 
-    const imageUrl = response.data.data[0].url;
-    console.log("✅ Generated Image URL:", imageUrl);
+    const imageUrl = response.data[0].url;
+    console.log("✅ Generated image URL:", imageUrl);
 
-    // 🖼 Download image
-    const imageResponse = await axios.get(imageUrl, { responseType: "arraybuffer" });
+    // Upload directly to Cloudinary from the OpenAI URL
+    const cloudinary = require("cloudinary").v2;
+    const uploadResponse = await cloudinary.uploader.upload(imageUrl, {
+      folder: "dreamscape",
+      timeout: 60000,
+    });
 
-    // 📂 Save image locally
-    const imageFilename = `${Date.now()}.png`;
-    const imagePath = path.join(__dirname, "images", imageFilename);
-    fs.writeFileSync(imagePath, imageResponse.data);
+    console.log("✅ Uploaded to Cloudinary:", uploadResponse.secure_url);
 
-    // ✅ Return local image path
-    res.json({ imageUrl: `http://localhost:3000/images/${imageFilename}` });
-
+    res.json({ 
+      imageUrl: uploadResponse.secure_url,
+      public_id: uploadResponse.public_id
+    });
 
   } catch (error) {
-    console.error("❌ Error generating image:", error);
-    res.status(500).json({ error: "Failed to generate image" });
+    console.error("Error generating/uploading image:", error);
+    res.status(500).json({ error: error.message });
   }
 });
-
-
 
 // Saving user dreams
 router.post("/save-dream", async (req, res) => {

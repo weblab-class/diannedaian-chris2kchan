@@ -50,15 +50,16 @@ mongoose
 // Create an Express server
 const app = express();
 
+// Set up body parsing for handling large payloads (before other middleware)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
 // ✅ Enable CORS before defining any routes
 app.use(cors({
   origin: "http://localhost:5173", // Allow requests from frontend
   methods: ["GET", "POST"], // Allowed request methods
   allowedHeaders: ["Content-Type"], // Allowed headers
 }));
-
-// ✅ Middleware: Process JSON requests before handling routes
-app.use(express.json());
 
 // ✅ Middleware: Serve static files (e.g., images)
 app.use("/images", express.static(path.join(__dirname, "images")));
