@@ -12,6 +12,7 @@ cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true
 });
 
 // Helper function to validate URL
@@ -37,12 +38,18 @@ router.post("/upload-image", async (req, res) => {
     console.log("📸 Attempting to upload image to Cloudinary...");
 
     let uploadResult;
+    const uploadOptions = {
+      folder: "dreamscape",
+      resource_type: "image",
+      type: "upload",
+      access_mode: "public",
+      secure: true,
+      timeout: 60000 // 60 second timeout
+    };
+
     if (format === "base64") {
       // Upload base64 data directly
-      uploadResult = await cloudinary.uploader.upload(`data:image/png;base64,${imageData}`, {
-        folder: "dreamscape",
-        timeout: 60000, // 60 second timeout
-      });
+      uploadResult = await cloudinary.uploader.upload(`data:image/png;base64,${imageData}`, uploadOptions);
     } else {
       // If it's already a Cloudinary URL, return as is
       if (imageData.includes("cloudinary.com")) {
@@ -54,10 +61,7 @@ router.post("/upload-image", async (req, res) => {
       if (!isValidUrl(imageData)) {
         return res.status(400).json({ error: "Invalid image URL format" });
       }
-      uploadResult = await cloudinary.uploader.upload(imageData, {
-        folder: "dreamscape",
-        timeout: 60000,
-      });
+      uploadResult = await cloudinary.uploader.upload(imageData, uploadOptions);
     }
 
     console.log("✅ Successfully uploaded to Cloudinary:", uploadResult.secure_url);

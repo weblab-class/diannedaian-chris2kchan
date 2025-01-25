@@ -17,6 +17,7 @@ const Skeleton = () => {
   const [dreams, setDreams] = useState([]); // Stores user's saved dreams
   const [selectedDate, setSelectedDate] = useState(new Date()); // Stores selected date
   const [isLoading, setIsLoading] = useState(false); // Controls loading spinner
+  const [isPublic, setIsPublic] = useState(false);
 
   // Fetch dreams on login for the user
   useEffect(() => {
@@ -75,18 +76,18 @@ const Skeleton = () => {
     }
 
     console.log("📡 Saving dream...");
-    console.log("📡 Request Body:", { userId, text: inputText, imageUrl, date: selectedDate });
+    console.log("📡 Request Body:", { userId, text: inputText, imageUrl, date: selectedDate, public: isPublic });
 
     try {
-      // No need to re-upload to Cloudinary - we already have the Cloudinary URL
       const response = await fetch(`/api/save-dream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
           text: inputText,
-          imageUrl, // Already a Cloudinary URL
+          imageUrl,
           date: selectedDate ? selectedDate.toISOString() : new Date().toISOString(),
+          public: isPublic
         }),
       });
 
@@ -98,15 +99,15 @@ const Skeleton = () => {
 
       const data = await response.json();
       if (data.success) {
-        setDreams([data.dream, ...dreams]); // Add new dream to UI
-        setInputText(""); // Clear input
-        setImageUrl(""); // Clear image
-        setSelectedDate(new Date()); // Reset date
+        setDreams([data.dream, ...dreams]);
+        setInputText("");
+        setImageUrl("");
+        setSelectedDate(new Date());
+        setIsPublic(false);
         console.log("✅ Dream successfully saved!");
       }
     } catch (error) {
       console.error("❌ Error saving dream:", error);
-      // You might want to show this error to the user in the UI
     }
   };
 
@@ -114,12 +115,10 @@ const Skeleton = () => {
     <div className="skeleton-container">
       {userId ? (
         <>
-          <button className="logout-button"
-            onClick={() => {
-              googleLogout();
-              handleLogout();
-            }}
-          >
+          <button className="logout-button" onClick={() => {
+            googleLogout();
+            handleLogout();
+          }}>
             Logout
           </button>
 
@@ -128,37 +127,46 @@ const Skeleton = () => {
               Create Dream Image
             </button>
           ) : (
-            <div className="input-box">
+            <div className="dream-input-container">
+              <DatePicker
+                selected={selectedDate}
+                onChange={date => setSelectedDate(date)}
+                className="date-picker"
+              />
+              
               <textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Describe your dream..."
+                className="dream-input"
               />
-              {/* ✅ Add Date Picker Here */}
-              <div className="date-picker-container">
-                <label>Select Date:</label>
-                <input
-                  type="date"
-                  value={selectedDate.toISOString().split("T")[0]} // Format YYYY-MM-DD
-                  onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                />
+
+              <div className="controls">
+                <button onClick={generateImage} disabled={!inputText || isLoading}>
+                  {isLoading ? "Generating..." : "Generate Image"}
+                </button>
+
+                <div className="privacy-control">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={isPublic}
+                      onChange={(e) => setIsPublic(e.target.checked)}
+                    />
+                    Make dream public
+                  </label>
+                </div>
+
+                <button onClick={saveDream} disabled={!inputText || !imageUrl}>
+                  Save Dream
+                </button>
               </div>
-              <button className="generate-button" onClick={generateImage} disabled={isLoading}>
-                {isLoading ? "Generating..." : "Generate Image"} {/* ✅ Button text updates */}
-              </button>
 
-              {/* ✅ Show Loading Spinner */}
-              {isLoading && <div className="spinner"></div>}
-
-              {/* ✅ Show Image when ready */}
-              {imageUrl && <img src={imageUrl} alt="Dream" className="dream-image" />}
-
-
-
-
-              <button className="save-button" onClick={saveDream}>
-                Log Dream
-              </button>
+              {imageUrl && (
+                <div className="generated-image">
+                  <img src={imageUrl} alt="Generated dream visualization" />
+                </div>
+              )}
             </div>
           )}
         </>

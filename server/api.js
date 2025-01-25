@@ -92,7 +92,10 @@ router.post("/generate-dream-image", async (req, res) => {
     const cloudinary = require("cloudinary").v2;
     const uploadResponse = await cloudinary.uploader.upload(imageUrl, {
       folder: "dreamscape",
-      timeout: 60000,
+      resource_type: "image",
+      type: "upload",
+      access_mode: "public",
+      secure: true
     });
 
     console.log("✅ Uploaded to Cloudinary:", uploadResponse.secure_url);
@@ -153,8 +156,57 @@ router.get("/get-dreams/:userId", async (req, res) => {
   }
 });
 
+// Get user's dreams (both public and private)
+router.get("/get-user-dreams/:userId", async (req, res) => {
+  try {
+    const dreams = await Dream.find({ userId: req.params.userId })
+      .sort({ date: -1 }); // Sort by date descending
+    
+    // Don't force HTTPS, let the browser handle the protocol
+    res.json(dreams);
+  } catch (error) {
+    console.error("Error fetching user dreams:", error);
+    res.status(500).json({ error: "Failed to fetch dreams" });
+  }
+});
 
+// Get public dreams feed (from all users)
+router.get("/public-dreams", async (req, res) => {
+  try {
+    const publicDreams = await Dream.find({ public: true })
+      .sort({ date: -1 }) // Sort by date descending
+      .limit(20); // Limit to 20 dreams at a time
 
+    res.json(publicDreams);
+  } catch (error) {
+    console.error("Error fetching public dreams:", error);
+    res.status(500).json({ error: "Failed to fetch public dreams" });
+  }
+});
+
+// Toggle dream privacy
+router.post("/toggle-dream-privacy/:dreamId", async (req, res) => {
+  try {
+    const dream = await Dream.findById(req.params.dreamId);
+    
+    if (!dream) {
+      return res.status(404).json({ error: "Dream not found" });
+    }
+
+    // Only allow the dream owner to toggle privacy
+    if (dream.userId !== req.body.userId) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    dream.public = !dream.public;
+    await dream.save();
+
+    res.json({ success: true, dream });
+  } catch (error) {
+    console.error("Error toggling dream privacy:", error);
+    res.status(500).json({ error: "Failed to toggle dream privacy" });
+  }
+});
 
 // anything else falls to this "not found" case
 router.all("*", (req, res) => {
