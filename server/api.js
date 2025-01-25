@@ -28,6 +28,7 @@ const router = express.Router();
 // import models so we can interact with the database
 const User = require("./models/user");
 const Dream = require("./models/dream"); // Import the Dream model
+const Profile = require("./models/profile");
 
 // import authentication library
 const auth = require("./auth");
@@ -205,6 +206,93 @@ router.post("/toggle-dream-privacy/:dreamId", async (req, res) => {
   } catch (error) {
     console.error("Error toggling dream privacy:", error);
     res.status(500).json({ error: "Failed to toggle dream privacy" });
+  }
+});
+
+// Create or update profile
+router.post("/profile", async (req, res) => {
+  try {
+    const { userId, name, bio, socialLinks, preferences } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
+
+    let profile = await Profile.findOne({ userId });
+    
+    if (!profile) {
+      // Create new profile
+      profile = new Profile({ userId });
+    }
+
+    // Update fields if provided
+    if (name) profile.name = name;
+    if (bio) profile.bio = bio;
+    if (socialLinks) profile.socialLinks = { ...profile.socialLinks, ...socialLinks };
+    if (preferences) profile.preferences = { ...profile.preferences, ...preferences };
+
+    profile.lastActive = new Date();
+    await profile.updateDreamCounts();
+    await profile.save();
+
+    res.json(profile);
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({ error: "Failed to update profile" });
+  }
+});
+
+// Get profile by userId
+router.get("/profile/:userId", async (req, res) => {
+  try {
+    let profile = await Profile.findOne({ userId: req.params.userId });
+    
+    if (!profile) {
+      // Create default profile if it doesn't exist
+      profile = new Profile({ userId: req.params.userId });
+      await profile.updateDreamCounts();
+      await profile.save();
+    }
+
+    res.json(profile);
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    res.status(500).json({ error: "Failed to fetch profile" });
+  }
+});
+
+// Upload profile avatar
+router.post("/profile/avatar", async (req, res) => {
+  try {
+    const { userId, imageData } = req.body;
+
+    if (!userId || !imageData) {
+      return res.status(400).json({ error: "userId and imageData are required" });
+    }
+
+    // Upload to Cloudinary
+    const cloudinary = require("cloudinary").v2;
+    const uploadResponse = await cloudinary.uploader.upload(imageData, {
+      folder: "dreamscape/avatars",
+      resource_type: "image",
+      type: "upload",
+      access_mode: "public",
+      secure: true,
+    });
+
+    // Update profile with new avatar URL
+    const profile = await Profile.findOne({ userId });
+    if (!profile) {
+      return res.status(404).json({ error: "Profile not found" });
+    }
+
+    profile.avatarUrl = uploadResponse.secure_url;
+    await profile.save();
+
+    res.json({ avatarUrl: uploadResponse.secure_url });
+  } catch (error) {
+    console.error("Error uploading avatar:", error);
+    res.status(500).json({ error: "Failed to upload avatar" });
   }
 });
 

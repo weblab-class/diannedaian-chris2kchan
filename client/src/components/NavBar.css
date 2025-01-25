@@ -1,0 +1,83 @@
+.NavBar-container {
+  padding: 1rem 2rem;
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.NavBar-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.NavBar-linkContainer {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.NavBar-link {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.NavBar-link:hover {
+  color: #007bff;
+}
+
+.NavBar-button {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.NavBar-button:hover {
+  color: #007bff;
+}
+
+/* NotFound styles */
+.NotFound-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 2rem;
+}
+
+.NotFound-container h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.NotFound-container p {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.NotFound-link {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.NotFound-link:hover {
+  background-color: #0056b3;
+}

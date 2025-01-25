@@ -4,6 +4,7 @@ import App from "./components/App";
 import Skeleton from "./components/pages/Skeleton";
 import NotFound from "./components/pages/NotFound";
 import Gallery from "./components/Gallery";
+import Profile from "./components/pages/Profile";
 
 import {
   createBrowserRouter,
@@ -19,9 +20,12 @@ const GOOGLE_CLIENT_ID = "99548937462-ju96p61ngch1n4qt79iq076ltvjnfcv6.apps.goog
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route errorElement={<NotFound />} element={<App />}>
-      <Route path="/" element={<Skeleton />} />
-      <Route path="/gallery" element={<Gallery />} />
+    <Route path="/" element={<App />}>
+      <Route index element={<Skeleton />} />
+      <Route path="gallery" element={<Gallery />} />
+      <Route path="profile" element={<Profile />} />
+      <Route path="profile/:userId" element={<Profile />} />
+      <Route path="*" element={<NotFound />} />
     </Route>
   )
 );
