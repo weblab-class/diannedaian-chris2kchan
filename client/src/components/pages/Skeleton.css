@@ -382,11 +382,11 @@ body {
 
 /* Add debug borders to see the tree stem container */
 .tree-stem-container {
-  border: 2px solid red;
+  /* border: 2px solid red; */
 }
 
 .tree-stem-content {
-  border: 2px solid blue;
+  /* border: 2px solid blue; */
 }
 
 .dream-input-container {

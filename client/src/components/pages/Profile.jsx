@@ -52,34 +52,6 @@ const Profile = () => {
     }
   }, [userId, currentUserId]);
 
-  const handleAvatarUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      try {
-        const response = await fetch("/api/profile/avatar", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            userId: currentUserId,
-            imageData: reader.result,
-          }),
-        });
-        const data = await response.json();
-        setProfile((prev) => ({ ...prev, avatarUrl: data.avatarUrl }));
-        setUserProfile((prev) => ({ ...prev, avatarUrl: data.avatarUrl }));
-      } catch (error) {
-        console.error("Error uploading avatar:", error);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -136,21 +108,10 @@ const Profile = () => {
         <div className="profile-header">
           <div className="profile-avatar-container">
             <img
-              src={profile?.avatarUrl || "/client/dist/assets/default-profile.svg"}
+              src="/assets/profilepic.png"
               alt="Profile"
               className="profile-avatar"
             />
-            {isOwnProfile && (
-              <label className="avatar-upload-label">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarUpload}
-                  style={{ display: "none" }}
-                />
-                Change Avatar
-              </label>
-            )}
           </div>
           <div className="profile-info">
             <h1>{userProfile?.name || profile?.name || "Dreamer"}</h1>

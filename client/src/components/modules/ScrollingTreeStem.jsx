@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import treeStemImage from "../../../dist/assets/treestem.png";
+import treeStemImage from "/assets/treestem.png";
 import "./ScrollingTreeStem.css";
 
 const ScrollingTreeStem = () => {

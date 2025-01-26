@@ -184,7 +184,7 @@ const Skeleton = () => {
               <div style={{ display: "none" }}>
                 <Link to={`/profile/${userId}`} className="profile-link">
                   <img 
-                    src={userProfile?.avatarUrl || "/client/dist/assets/default-profile.svg"} 
+                    src="/assets/profilepic.png"
                     alt="Profile" 
                     className="header-avatar" 
                   />

@@ -129,7 +129,7 @@ router.post("/dreams", auth.ensureLoggedIn, async (req, res) => {
       tags: req.body.tags,
       userProfile: {
         name: profile?.name || "Dreamer",
-        picture: profile?.avatarUrl || "/client/dist/assets/default-profile.svg"
+        picture: "/assets/profilepic.png"
       }
     });
 
@@ -199,7 +199,7 @@ router.post("/toggle-dream-privacy/:dreamId", auth.ensureLoggedIn, async (req, r
     if (dream.public) {
       dream.userProfile = {
         name: profile?.name || "Dreamer",
-        picture: profile?.avatarUrl || "/client/dist/assets/default-profile.svg"
+        picture: "/assets/profilepic.png"
       };
     }
     

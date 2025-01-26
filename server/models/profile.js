@@ -10,13 +10,13 @@ const ProfileSchema = new mongoose.Schema({
     type: String,
     default: "Dreamer",
   },
+  /* avatarUrl: {
+    type: String,
+    default: "/assets/defaultphoto.png",
+  }, */
   bio: {
     type: String,
     default: "",
-  },
-  avatarUrl: {
-    type: String,
-    default: "/client/dist/assets/default-profile.svg",
   },
   dreamCount: {
     type: Number,
