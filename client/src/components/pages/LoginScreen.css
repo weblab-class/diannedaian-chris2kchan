@@ -15,7 +15,6 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  background-image: url("../../public/assets/login.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -43,7 +42,6 @@
 }
 
 .cloud-layer-1 {
-  background-image: url("../../public/assets/login1.png");
   background-size: contain;
   background-position: bottom;
   animation: slideBackground 200s linear infinite; /* Much slower: 3 minutes per cycle */
@@ -53,7 +51,6 @@
 }
 
 .cloud-layer-2 {
-  background-image: url("../../public/assets/login2.png");
   background-size: contain;
   background-position: bottom;
   animation: slideBackground 150s linear infinite; /* 2.5 minutes per cycle */
