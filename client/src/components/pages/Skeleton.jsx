@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import TagInput from "../modules/TagInput";
 import StarryBackground from "../modules/StarryBackground";
 import ScrollingTreeStem from "../modules/ScrollingTreeStem"; 
+import AddDreamButton from "../modules/AddDreamButton";
 import { NavBar } from "../NavBar";
 import "../../utilities.css";
 import "./Skeleton.css";
@@ -174,12 +175,17 @@ const Skeleton = () => {
 
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      {userId ? (
+      {userId && (
         <>
-          <NavBar userId={userId} handleLogout={handleLogout} />
+          <NavBar
+            handleLogin={handleLogin}
+            handleLogout={handleLogout}
+            userId={userId}
+          />
+          <ScrollingTreeStem />
+          <StarryBackground />
+          <AddDreamButton onNewDream={(newDream) => setDreams([newDream, ...dreams])} />
           <div className="App-container">
-            <StarryBackground />
-            <ScrollingTreeStem />
             <div style={{ display: "none" }}>
               <div style={{ display: "none" }}>
                 <Link to={`/profile/${userId}`} className="profile-link">
@@ -292,7 +298,8 @@ const Skeleton = () => {
             </div>
           </div>
         </>
-      ) : (
+      )}
+      {!userId && (
         <div className="App-container">
           <StarryBackground />
           <div className="login-container">

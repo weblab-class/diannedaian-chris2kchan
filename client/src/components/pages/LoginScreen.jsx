@@ -4,10 +4,18 @@ import "./LoginScreen.css";
 
 const LoginScreen = ({ handleLogin }) => {
   return (
-    <div className="login-screen">
-      <h1>Welcome to Dreamscape</h1>
-      <p>Log in to start generating and logging your dreams.</p>
-      <GoogleLogin onSuccess={handleLogin} onError={(err) => console.log(err)} />
+    <div className="LoginScreen-container">
+      <div className="login-screen">
+        <h1>Welcome to Dreamscape</h1>
+        <p>Log in to start generating and logging your dreams.</p>
+      </div>
+      <div className="google-login-wrapper">
+        <GoogleLogin onSuccess={handleLogin} onError={(err) => console.log(err)} />
+      </div>
+      <div className="cloud-background">
+        <div className="cloud-layer cloud-layer-2"></div>
+        <div className="cloud-layer cloud-layer-1"></div>
+      </div>
     </div>
   );
 };

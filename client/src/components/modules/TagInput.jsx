@@ -19,6 +19,7 @@ const TagInput = ({ selectedTags, onTagsChange }) => {
   const [inputValue, setInputValue] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [filteredTags, setFilteredTags] = useState(PRESET_TAGS);
+  const [showInput, setShowInput] = useState(false);
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
 
@@ -46,17 +47,9 @@ const TagInput = ({ selectedTags, onTagsChange }) => {
     setFilteredTags(filtered);
   };
 
-  const handleTagSelect = (tag) => {
-    if (!selectedTags.find(t => t.id === tag.id)) {
-      onTagsChange([...selectedTags, tag]);
-    }
-    setInputValue("");
-    setIsDropdownOpen(false);
-  };
-
   const handleCreateTag = () => {
     if (!inputValue.trim()) return;
-
+    
     const newTag = {
       id: inputValue.toLowerCase().replace(/\s+/g, '-'),
       text: inputValue.trim(),
@@ -66,8 +59,17 @@ const TagInput = ({ selectedTags, onTagsChange }) => {
     handleTagSelect(newTag);
   };
 
-  const handleRemoveTag = (tagId) => {
-    onTagsChange(selectedTags.filter(tag => tag.id !== tagId));
+  const handleTagSelect = (tag) => {
+    if (!selectedTags.find(t => t.id === tag.id)) {
+      onTagsChange([...selectedTags, tag]);
+      setInputValue("");
+      setIsDropdownOpen(false);
+      setShowInput(false);
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    onTagsChange(selectedTags.filter(tag => tag.id !== tagToRemove.id));
   };
 
   const handleKeyDown = (e) => {
@@ -78,8 +80,6 @@ const TagInput = ({ selectedTags, onTagsChange }) => {
       } else {
         handleCreateTag();
       }
-    } else if (e.key === 'Backspace' && !inputValue && selectedTags.length > 0) {
-      handleRemoveTag(selectedTags[selectedTags.length - 1].id);
     }
   };
 
@@ -94,50 +94,66 @@ const TagInput = ({ selectedTags, onTagsChange }) => {
           >
             {tag.text}
             <button
-              onClick={() => handleRemoveTag(tag.id)}
+              type="button"
               className="remove-tag"
+              onClick={() => handleRemoveTag(tag)}
             >
               ×
             </button>
           </span>
         ))}
-      </div>
-      <div className="input-wrapper">
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          onFocus={() => setIsDropdownOpen(true)}
-          placeholder="Add tags..."
-          className="tag-input"
-        />
-        {isDropdownOpen && (inputValue || filteredTags.length > 0) && (
-          <div ref={dropdownRef} className="tag-dropdown">
-            {filteredTags.map(tag => (
-              <div
-                key={tag.id}
-                className="tag-option"
-                onClick={() => handleTagSelect(tag)}
-                style={{ backgroundColor: tag.color }}
-              >
-                {tag.text}
-              </div>
-            ))}
-            {inputValue && !filteredTags.find(t => 
-              t.text.toLowerCase() === inputValue.toLowerCase()
-            ) && (
-              <div
-                className="tag-option create-option"
-                onClick={handleCreateTag}
-              >
-                Create "{inputValue}"
-              </div>
-            )}
-          </div>
+        {!showInput && (
+          <button
+            type="button"
+            className="add-tag-button"
+            onClick={() => setShowInput(true)}
+          >
+            +
+          </button>
         )}
       </div>
+      
+      {showInput && (
+        <div className="input-wrapper">
+          <input
+            ref={inputRef}
+            type="text"
+            className="tag-input"
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onFocus={() => setIsDropdownOpen(true)}
+            placeholder="Add tags..."
+          />
+          {isDropdownOpen && (
+            <div className="tag-dropdown" ref={dropdownRef}>
+              {filteredTags.map(tag => (
+                <div
+                  key={tag.id}
+                  className="tag-option"
+                  onClick={() => handleTagSelect(tag)}
+                >
+                  <span
+                    className="color-preview"
+                    style={{ backgroundColor: tag.color }}
+                  />
+                  {tag.text}
+                </div>
+              ))}
+              {inputValue && !filteredTags.find(t => 
+                t.text.toLowerCase() === inputValue.toLowerCase()
+              ) && (
+                <div
+                  className="tag-option create-option"
+                  onClick={handleCreateTag}
+                >
+                  Create "{inputValue}"
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
