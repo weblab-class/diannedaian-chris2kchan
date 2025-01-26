@@ -1,0 +1,53 @@
+.NewDream-container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.NewDream-input {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.NewDream-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.NewDream-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+}
+
+.NewDream-button {
+  background-color: #6b8afd;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.NewDream-button:hover {
+  background-color: #5a74d5;
+}
+
+.NewDream-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

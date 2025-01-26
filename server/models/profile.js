@@ -6,6 +6,14 @@ const ProfileSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  displayName: {
+    type: String,
+    default: "Dreamer",
+  },
+  picture: {
+    type: String,
+    default: "/default-profile.svg",
+  },
   name: {
     type: String,
     default: "",

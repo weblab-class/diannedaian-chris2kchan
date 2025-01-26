@@ -153,3 +153,167 @@ textarea {
   border-radius: 5px;
   border: 1px solid #ccc;
 }
+
+.u-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.NewDream-container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.NewDream-input {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.NewDream-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.NewDream-options {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.NewDream-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+}
+
+.NewDream-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.NewDream-button {
+  background-color: #6b8afd;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.NewDream-button:hover {
+  background-color: #5a74d5;
+}
+
+.NewDream-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.NewDream-datepicker {
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.NewDream-imagePreview {
+  margin-top: 16px;
+}
+
+.NewDream-imagePreview img {
+  max-width: 100%;
+  border-radius: 4px;
+}
+
+.DreamList-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.Dream-card {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.Dream-author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.Dream-authorPic {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.Dream-authorName {
+  font-weight: 500;
+  color: #333;
+}
+
+.Dream-image {
+  width: 100%;
+  border-radius: 4px;
+  margin: 12px 0;
+}
+
+.Dream-card img {
+  width: 100%;
+  border-radius: 4px;
+  margin: 12px 0;
+}
+
+.Dream-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 14px;
+}
+
+.Dream-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  color: #666;
+  font-size: 14px;
+}
+
+.Dream-public {
+  background-color: #e0e0e0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}

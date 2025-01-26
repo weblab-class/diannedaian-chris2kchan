@@ -1,0 +1,85 @@
+.tag-input-container {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  background: white;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+.remove-tag {
+  background: none;
+  border: none;
+  margin-left: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 4px;
+  color: #666;
+}
+
+.remove-tag:hover {
+  color: #333;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.tag-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.tag-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tag-option {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-radius: 4px;
+  margin: 4px;
+}
+
+.tag-option:hover {
+  filter: brightness(0.95);
+}
+
+.create-option {
+  background-color: #f0f0f0;
+  color: #666;
+  font-style: italic;
+}
+
+.create-option:hover {
+  background-color: #e0e0e0;
+}

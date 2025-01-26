@@ -8,8 +8,14 @@
 */
 
 const express = require("express");
-const axios = require("axios");
+const auth = require("./auth");
+const Dream = require("./models/dream");
+const Profile = require("./models/profile");
+
+// import the OpenAI API
 const OpenAI = require("openai");
+
+const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
@@ -27,11 +33,6 @@ const router = express.Router();
 
 // import models so we can interact with the database
 const User = require("./models/user");
-const Dream = require("./models/dream"); // Import the Dream model
-const Profile = require("./models/profile");
-
-// import authentication library
-const auth = require("./auth");
 
 //initialize socket
 const socketManager = require("./server-socket");
@@ -113,47 +114,56 @@ router.post("/generate-dream-image", async (req, res) => {
 });
 
 // Saving user dreams
-router.post("/save-dream", async (req, res) => {
+router.post("/dreams", auth.ensureLoggedIn, async (req, res) => {
   try {
-    const { userId, text, imageUrl, public, date } = req.body;
-
-    if (!userId || !text || !imageUrl) {
-      console.error("❌ Missing required fields:", { userId, text, imageUrl });
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-
-    // ✅ Ensure `date` is properly formatted
-    const formattedDate = date ? new Date(date) : new Date();
-
+    // Get user's profile
+    const profile = await Profile.findOne({ userId: req.user.googleid });
+    
     const newDream = new Dream({
-      userId,
-      text,
-      imageUrl: imageUrl || "", // Ensure imageUrl is never undefined
-      public: public || false, // Default `public` to false if not provided
-      date: formattedDate, // ✅ Corrected field name
+      userId: req.user.googleid,
+      text: req.body.text,
+      imageUrl: req.body.imageUrl,
+      public: req.body.public,
+      tags: req.body.tags,
+      userProfile: req.body.public ? {
+        name: profile?.displayName || "Dreamer",
+        picture: profile?.picture || "/default-profile.svg"
+      } : undefined
     });
 
-    await newDream.save();
-    console.log("✅ Dream saved successfully:", newDream);
-    res.json({ success: true, dream: newDream });
+    const savedDream = await newDream.save();
 
-  } catch (error) {
-    console.error("❌ FULL ERROR:", error); // ❗ Prints the actual issue!
-    res.status(500).json({ error: error.message || "Failed to save dream" });
+    // Update profile dream counts
+    if (profile) {
+      profile.dreamCount += 1;
+      if (req.body.public) {
+        profile.publicDreams += 1;
+      }
+      await profile.save();
+    }
+
+    res.send(savedDream);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
   }
 });
 
-// Retrieving user dreams
+// Get dreams for a user
 router.get("/get-dreams/:userId", async (req, res) => {
   try {
-    console.log(`📡 Received GET request for userId: ${req.params.userId}`); // Debugging log
-    const dreams = await Dream.find({ userId: req.params.userId }).sort({ date: -1 });
-    console.log(`Found ${dreams.length} dreams for user ${req.params.userId}`);
-    res.json(dreams);
-  } catch (error) {
-    console.error("Error fetching dreams:", error);
-    res.status(500).json({ error: "Failed to fetch dreams" });
+    // Get user's own dreams and public dreams from others
+    const dreams = await Dream.find({
+      $or: [
+        { userId: req.user.googleid },
+        { public: true }
+      ]
+    }).sort({ date: -1 });
+
+    res.send(dreams);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
   }
 });
 

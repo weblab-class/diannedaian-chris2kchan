@@ -3,6 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { GoogleLogin, googleLogout } from "@react-oauth/google";
 
+import TagInput from "../modules/TagInput";
 import "../../utilities.css";
 import "./Skeleton.css";
 
@@ -11,24 +12,20 @@ import { UserContext } from "../App";
 const Skeleton = () => {
   const { userId, handleLogin, handleLogout } = useContext(UserContext);
 
-  const [showInput, setShowInput] = useState(false); // Controls if the text box is visible
-  const [inputText, setInputText] = useState(""); // Stores user input
-  const [imageUrl, setImageUrl] = useState(""); // Stores AI-generated image
-  const [dreams, setDreams] = useState([]); // Stores user's saved dreams
-  const [selectedDate, setSelectedDate] = useState(new Date()); // Stores selected date
-  const [isLoading, setIsLoading] = useState(false); // Controls loading spinner
+  const [showInput, setShowInput] = useState(false);
+  const [inputText, setInputText] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [dreams, setDreams] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isLoading, setIsLoading] = useState(false);
   const [isPublic, setIsPublic] = useState(false);
+  const [selectedTags, setSelectedTags] = useState([]);
 
-  // Fetch dreams on login for the user
   useEffect(() => {
     if (userId) {
-      console.log(`Fetching dreams for userId: ${userId}`); // Debugging log
-
+      console.log(`Fetching dreams for userId: ${userId}`);
       fetch(`/api/get-dreams/${userId}`)
-        .then((res) => {
-          console.log("API Response:", res.status); // Log response status
-          return res.json();
-        })
+        .then((res) => res.json())
         .then((data) => {
           console.log("Received dreams data:", data);
           setDreams(data);
@@ -63,7 +60,6 @@ const Skeleton = () => {
       setImageUrl(data.imageUrl);
     } catch (error) {
       console.error("❌ Error in image generation process:", error);
-      // You might want to show this error to the user in the UI
     } finally {
       setIsLoading(false);
     }
@@ -76,18 +72,18 @@ const Skeleton = () => {
     }
 
     console.log("📡 Saving dream...");
-    console.log("📡 Request Body:", { userId, text: inputText, imageUrl, date: selectedDate, public: isPublic });
 
     try {
-      const response = await fetch(`/api/save-dream`, {
+      const response = await fetch(`/api/dreams`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
           text: inputText,
           imageUrl,
-          date: selectedDate ? selectedDate.toISOString() : new Date().toISOString(),
-          public: isPublic
+          date: selectedDate.toISOString(),
+          public: isPublic,
+          tags: selectedTags,
         }),
       });
 
@@ -97,83 +93,143 @@ const Skeleton = () => {
         throw new Error(`Failed to save dream: ${errorText}`);
       }
 
-      const data = await response.json();
-      if (data.success) {
-        setDreams([data.dream, ...dreams]);
-        setInputText("");
-        setImageUrl("");
-        setSelectedDate(new Date());
-        setIsPublic(false);
-        console.log("✅ Dream successfully saved!");
-      }
+      const newDream = await response.json();
+      console.log("✅ Dream saved successfully:", newDream);
+      
+      setDreams([newDream, ...dreams]);
+      setInputText("");
+      setImageUrl("");
+      setIsPublic(false);
+      setSelectedTags([]);
+      setShowInput(false);
     } catch (error) {
       console.error("❌ Error saving dream:", error);
     }
   };
 
   return (
-    <div className="skeleton-container">
-      {userId ? (
-        <>
-          <button className="logout-button" onClick={() => {
-            googleLogout();
-            handleLogout();
-          }}>
+    <>
+      <div className="u-flex">
+        <h1>Dreams</h1>
+        {userId ? (
+          <button
+            className="logout-button"
+            onClick={() => {
+              googleLogout();
+              handleLogout();
+            }}
+          >
             Logout
           </button>
+        ) : (
+          <GoogleLogin
+            onSuccess={handleLogin}
+            onError={() => console.log("Login Failed")}
+          />
+        )}
+        <button
+          className="NewDream-button u-pointer"
+          onClick={() => setShowInput(!showInput)}
+        >
+          {showInput ? "Cancel" : "New Dream"}
+        </button>
+      </div>
 
-          {!showInput ? (
-            <button className="show-input-button" onClick={() => setShowInput(true)}>
-              Create Dream Image
-            </button>
-          ) : (
-            <div className="dream-input-container">
+      {showInput && (
+        <div className="NewDream-container">
+          <textarea
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            placeholder="Write your dream here..."
+            className="NewDream-input"
+          />
+          
+          <TagInput
+            selectedTags={selectedTags}
+            onTagsChange={setSelectedTags}
+          />
+
+          <div className="NewDream-footer">
+            <div className="NewDream-options">
+              <label className="NewDream-checkbox">
+                <input
+                  type="checkbox"
+                  checked={isPublic}
+                  onChange={(e) => setIsPublic(e.target.checked)}
+                />
+                Make dream public
+              </label>
+              
               <DatePicker
                 selected={selectedDate}
-                onChange={date => setSelectedDate(date)}
-                className="date-picker"
+                onChange={(date) => setSelectedDate(date)}
+                className="NewDream-datepicker"
               />
+            </div>
+
+            <div className="NewDream-buttons">
+              <button
+                onClick={generateImage}
+                className="NewDream-button u-pointer"
+                disabled={!inputText.trim() || isLoading}
+              >
+                {isLoading ? "Generating..." : "Generate Image"}
+              </button>
               
-              <textarea
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder="Describe your dream..."
-                className="dream-input"
-              />
+              <button
+                onClick={saveDream}
+                className="NewDream-button u-pointer"
+                disabled={!inputText.trim() || !imageUrl || isLoading}
+              >
+                Save Dream
+              </button>
+            </div>
+          </div>
 
-              <div className="controls">
-                <button onClick={generateImage} disabled={!inputText || isLoading}>
-                  {isLoading ? "Generating..." : "Generate Image"}
-                </button>
-
-                <div className="privacy-control">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={isPublic}
-                      onChange={(e) => setIsPublic(e.target.checked)}
-                    />
-                    Make dream public
-                  </label>
-                </div>
-
-                <button onClick={saveDream} disabled={!inputText || !imageUrl}>
-                  Save Dream
-                </button>
-              </div>
-
-              {imageUrl && (
-                <div className="generated-image">
-                  <img src={imageUrl} alt="Generated dream visualization" />
-                </div>
-              )}
+          {imageUrl && (
+            <div className="NewDream-imagePreview">
+              <img src={imageUrl} alt="Generated dream visualization" />
             </div>
           )}
-        </>
-      ) : (
-        <div>Please log in to create and save your dream images.</div>
+        </div>
       )}
-    </div>
+
+      <div className="DreamList-container">
+        {dreams.map((dream, i) => (
+          <div key={dream._id || i} className="Dream-card">
+            {dream.public && dream.userProfile && (
+              <div className="Dream-author">
+                <img 
+                  src={dream.userProfile.picture} 
+                  alt={dream.userProfile.name}
+                  className="Dream-authorPic"
+                />
+                <span className="Dream-authorName">{dream.userProfile.name}</span>
+              </div>
+            )}
+            <p>{dream.text}</p>
+            {dream.imageUrl && (
+              <img src={dream.imageUrl} alt="Dream visualization" className="Dream-image" />
+            )}
+            <div className="Dream-tags">
+              {dream.tags?.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="tag"
+                  style={{ backgroundColor: tag.color }}
+                >
+                  {tag.text}
+                </span>
+              ))}
+            </div>
+            <div className="Dream-footer">
+              <span>{new Date(dream.date).toLocaleDateString()}</span>
+              {dream.public && <span className="Dream-public">Public</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
   );
 };
 
