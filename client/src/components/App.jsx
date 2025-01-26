@@ -6,6 +6,7 @@ import { NavBar } from "./NavBar";
 import LoginScreen from "./pages/LoginScreen";
 
 import "../utilities.css";
+import "../fonts.css";
 import "./App.css";
 
 import { get, post } from "../utilities";
@@ -16,6 +17,26 @@ export const UserContext = createContext({});
 const App = () => {
   const [userId, setUserId] = useState(undefined);
   const [userName, setUserName] = useState(undefined);
+  const [userProfile, setUserProfile] = useState(null);
+
+  // Fetch user profile whenever userId changes
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (userId) {
+        try {
+          const response = await fetch(`/api/profile/${userId}`, {
+            credentials: "include",
+          });
+          const data = await response.json();
+          setUserProfile(data);
+        } catch (error) {
+          console.error("Error fetching profile:", error);
+        }
+      }
+    };
+
+    fetchProfile();
+  }, [userId]);
 
   useEffect(() => {
     get("/api/whoami").then((user) => {
@@ -40,11 +61,12 @@ const App = () => {
   const handleLogout = () => {
     setUserId(undefined);
     setUserName(undefined);
+    setUserProfile(null);
     post("/api/logout");
   };
 
   return (
-    <UserContext.Provider value={{ userId, userName }}>
+    <UserContext.Provider value={{ userId, userName, userProfile, setUserProfile }}>
       {userId ? (
         <>
           <NavBar handleLogout={handleLogout} />

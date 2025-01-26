@@ -1,19 +1,21 @@
 .NavBar-container {
-  padding: 1rem 2rem;
-  background-color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: rgba(44, 62, 80, 0.95);
+  padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .NavBar-title {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #333;
+  color: white;
 }
 
 .NavBar-linkContainer {
@@ -23,14 +25,14 @@
 }
 
 .NavBar-link {
-  color: #333;
+  color: white;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
 .NavBar-link:hover {
-  color: #007bff;
+  color: #3498db;
 }
 
 .NavBar-button {
@@ -42,7 +44,7 @@
 }
 
 .NavBar-button:hover {
-  color: #007bff;
+  color: #3498db;
 }
 
 /* NotFound styles */

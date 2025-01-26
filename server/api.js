@@ -117,63 +117,46 @@ router.post("/generate-dream-image", async (req, res) => {
 router.post("/dreams", auth.ensureLoggedIn, async (req, res) => {
   try {
     // Get user's profile
-    const profile = await Profile.findOne({ userId: req.user.googleid });
+    const userId = req.user.googleid;
+    const profile = await Profile.findOne({ userId });
     
     const newDream = new Dream({
-      userId: req.user.googleid,
+      userId: userId,
       text: req.body.text,
       imageUrl: req.body.imageUrl,
+      date: req.body.date,
       public: req.body.public,
       tags: req.body.tags,
-      userProfile: req.body.public ? {
-        name: profile?.displayName || "Dreamer",
-        picture: profile?.picture || "/default-profile.svg"
-      } : undefined
+      userProfile: {
+        name: profile?.name || "Dreamer",
+        picture: profile?.avatarUrl || "/client/dist/assets/default-profile.svg"
+      }
     });
 
     const savedDream = await newDream.save();
 
     // Update profile dream counts
     if (profile) {
-      profile.dreamCount += 1;
+      profile.dreamCount = (profile.dreamCount || 0) + 1;
       if (req.body.public) {
-        profile.publicDreams += 1;
+        profile.publicDreamCount = (profile.publicDreamCount || 0) + 1;
       }
       await profile.save();
     }
 
     res.send(savedDream);
   } catch (err) {
-    console.log(err);
+    console.error("Error saving dream:", err);
     res.status(500).send(err);
   }
 });
 
-// Get dreams for a user
-router.get("/get-dreams/:userId", async (req, res) => {
-  try {
-    // Get user's own dreams and public dreams from others
-    const dreams = await Dream.find({
-      $or: [
-        { userId: req.user.googleid },
-        { public: true }
-      ]
-    }).sort({ date: -1 });
-
-    res.send(dreams);
-  } catch (err) {
-    console.log(err);
-    res.status(500).send(err);
-  }
-});
-
-// Get user's dreams (both public and private)
-router.get("/get-user-dreams/:userId", async (req, res) => {
+// Get user's private dreams feed (includes both public and private dreams)
+router.get("/get-user-dreams/:userId", auth.ensureLoggedIn, async (req, res) => {
   try {
     const dreams = await Dream.find({ userId: req.params.userId })
       .sort({ date: -1 }); // Sort by date descending
     
-    // Don't force HTTPS, let the browser handle the protocol
     res.json(dreams);
   } catch (error) {
     console.error("Error fetching user dreams:", error);
@@ -186,7 +169,7 @@ router.get("/public-dreams", async (req, res) => {
   try {
     const publicDreams = await Dream.find({ public: true })
       .sort({ date: -1 }) // Sort by date descending
-      .limit(20); // Limit to 20 dreams at a time
+      .limit(50); // Limit to 50 dreams at a time
 
     res.json(publicDreams);
   } catch (error) {
@@ -196,7 +179,7 @@ router.get("/public-dreams", async (req, res) => {
 });
 
 // Toggle dream privacy
-router.post("/toggle-dream-privacy/:dreamId", async (req, res) => {
+router.post("/toggle-dream-privacy/:dreamId", auth.ensureLoggedIn, async (req, res) => {
   try {
     const dream = await Dream.findById(req.params.dreamId);
     
@@ -205,14 +188,34 @@ router.post("/toggle-dream-privacy/:dreamId", async (req, res) => {
     }
 
     // Only allow the dream owner to toggle privacy
-    if (dream.userId !== req.body.userId) {
+    if (dream.userId !== req.user.googleid) {
       return res.status(403).json({ error: "Unauthorized" });
     }
 
+    // Get user's profile for updating the userProfile field
+    const profile = await Profile.findOne({ userId: req.user.googleid });
+    
     dream.public = !dream.public;
+    if (dream.public) {
+      dream.userProfile = {
+        name: profile?.name || "Dreamer",
+        picture: profile?.avatarUrl || "/client/dist/assets/default-profile.svg"
+      };
+    }
+    
     await dream.save();
 
-    res.json({ success: true, dream });
+    // Update profile public dream count
+    if (profile) {
+      if (dream.public) {
+        profile.publicDreamCount = (profile.publicDreamCount || 0) + 1;
+      } else {
+        profile.publicDreamCount = Math.max((profile.publicDreamCount || 0) - 1, 0);
+      }
+      await profile.save();
+    }
+
+    res.json(dream);
   } catch (error) {
     console.error("Error toggling dream privacy:", error);
     res.status(500).json({ error: "Failed to toggle dream privacy" });
@@ -220,12 +223,13 @@ router.post("/toggle-dream-privacy/:dreamId", async (req, res) => {
 });
 
 // Create or update profile
-router.post("/profile", async (req, res) => {
+router.post("/profile", auth.ensureLoggedIn, async (req, res) => {
   try {
-    const { userId, name, bio, socialLinks, preferences } = req.body;
+    const { name, bio, socialLinks, preferences } = req.body;
+    const userId = req.user.googleid;  // Get userId from authenticated user
 
     if (!userId) {
-      return res.status(400).json({ error: "userId is required" });
+      return res.status(400).json({ error: "Not authenticated" });
     }
 
     let profile = await Profile.findOne({ userId });
@@ -236,15 +240,15 @@ router.post("/profile", async (req, res) => {
     }
 
     // Update fields if provided
-    if (name) profile.name = name;
-    if (bio) profile.bio = bio;
+    if (name !== undefined) profile.name = name;
+    if (bio !== undefined) profile.bio = bio;
     if (socialLinks) profile.socialLinks = { ...profile.socialLinks, ...socialLinks };
     if (preferences) profile.preferences = { ...profile.preferences, ...preferences };
 
     profile.lastActive = new Date();
-    await profile.updateDreamCounts();
     await profile.save();
 
+    // Send back the updated profile
     res.json(profile);
   } catch (error) {
     console.error("Error updating profile:", error);

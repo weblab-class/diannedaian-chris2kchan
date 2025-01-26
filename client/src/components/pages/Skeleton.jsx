@@ -1,13 +1,19 @@
 import React, { useContext, useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { GoogleLogin, googleLogout } from "@react-oauth/google";
+import { GoogleOAuthProvider, GoogleLogin, googleLogout } from "@react-oauth/google";
+import { Link } from "react-router-dom";
 
 import TagInput from "../modules/TagInput";
+import StarryBackground from "../modules/StarryBackground";
+import ScrollingTreeStem from "../modules/ScrollingTreeStem"; 
+import { NavBar } from "../NavBar";
 import "../../utilities.css";
 import "./Skeleton.css";
 
 import { UserContext } from "../App";
+
+const GOOGLE_CLIENT_ID = "713619431927-oqe8d6r0nfi9dj1s60kceepr5c0hcjlg.apps.googleusercontent.com";
 
 const Skeleton = () => {
   const { userId, handleLogin, handleLogout } = useContext(UserContext);
@@ -20,14 +26,44 @@ const Skeleton = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPublic, setIsPublic] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
+
+  // Add refresh interval for profile
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch(`/api/profile/${userId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile");
+        }
+        const data = await response.json();
+        setUserProfile(data);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      }
+    };
+
+    if (userId) {
+      // Initial fetch
+      fetchProfile();
+
+      // Refresh every 30 seconds
+      const intervalId = setInterval(fetchProfile, 30000);
+
+      // Cleanup interval on unmount
+      return () => clearInterval(intervalId);
+    }
+  }, [userId]);
 
   useEffect(() => {
     if (userId) {
-      console.log(`Fetching dreams for userId: ${userId}`);
-      fetch(`/api/get-dreams/${userId}`)
+      // Fetch user's dreams (both public and private)
+      fetch(`/api/get-user-dreams/${userId}`, {
+        credentials: "include",
+      })
         .then((res) => res.json())
         .then((data) => {
-          console.log("Received dreams data:", data);
+          console.log("Received user dreams:", data);
           setDreams(data);
         })
         .catch((err) => console.error("Error fetching dreams:", err));
@@ -96,7 +132,10 @@ const Skeleton = () => {
       const newDream = await response.json();
       console.log("✅ Dream saved successfully:", newDream);
       
+      // Add the new dream to the dreams list
       setDreams([newDream, ...dreams]);
+      
+      // Reset form
       setInputText("");
       setImageUrl("");
       setIsPublic(false);
@@ -107,129 +146,161 @@ const Skeleton = () => {
     }
   };
 
+  const toggleDreamPrivacy = async (dreamId) => {
+    try {
+      const response = await fetch(`/api/toggle-dream-privacy/${dreamId}`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to toggle dream privacy");
+      }
+
+      const updatedDream = await response.json();
+      
+      // Update the dreams list with the toggled dream
+      setDreams(dreams.map(d => d._id === updatedDream._id ? updatedDream : d));
+    } catch (error) {
+      console.error("Error toggling dream privacy:", error);
+      alert(error.message || "Failed to toggle dream privacy. Please try again.");
+    }
+  };
+
   return (
-    <>
-      <div className="u-flex">
-        <h1>Dreams</h1>
-        {userId ? (
-          <button
-            className="logout-button"
-            onClick={() => {
-              googleLogout();
-              handleLogout();
-            }}
-          >
-            Logout
-          </button>
-        ) : (
-          <GoogleLogin
-            onSuccess={handleLogin}
-            onError={() => console.log("Login Failed")}
-          />
-        )}
-        <button
-          className="NewDream-button u-pointer"
-          onClick={() => setShowInput(!showInput)}
-        >
-          {showInput ? "Cancel" : "New Dream"}
-        </button>
-      </div>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      {userId ? (
+        <>
+          <NavBar userId={userId} handleLogout={handleLogout} />
+          <div className="App-container">
+            <StarryBackground />
+            <ScrollingTreeStem />
+            <div style={{ display: "none" }}>
+              <div style={{ display: "none" }}>
+                <Link to={`/profile/${userId}`} className="profile-link">
+                  <img 
+                    src={userProfile?.avatarUrl || "/client/dist/assets/default-profile.svg"} 
+                    alt="Profile" 
+                    className="header-avatar" 
+                  />
+                  <span className="header-username">{userProfile?.name || "Dreamer"}</span>
+                </Link>
+                <button
+                  className="NewDream-button u-pointer"
+                  onClick={() => setShowInput(!showInput)}
+                >
+                  {showInput ? "Cancel" : "New Dream"}
+                </button>
+              </div>
 
-      {showInput && (
-        <div className="NewDream-container">
-          <textarea
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder="Write your dream here..."
-            className="NewDream-input"
-          />
-          
-          <TagInput
-            selectedTags={selectedTags}
-            onTagsChange={setSelectedTags}
-          />
+              {showInput && (
+                <div className="NewDream-container">
+                  <textarea
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    placeholder="Write your dream here..."
+                    className="NewDream-input"
+                  />
+                  
+                  <TagInput
+                    selectedTags={selectedTags}
+                    onTagsChange={setSelectedTags}
+                  />
 
-          <div className="NewDream-footer">
-            <div className="NewDream-options">
-              <label className="NewDream-checkbox">
-                <input
-                  type="checkbox"
-                  checked={isPublic}
-                  onChange={(e) => setIsPublic(e.target.checked)}
-                />
-                Make dream public
-              </label>
-              
-              <DatePicker
-                selected={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
-                className="NewDream-datepicker"
-              />
-            </div>
+                  <div className="NewDream-footer">
+                    <div className="NewDream-options">
+                      <label className="NewDream-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={isPublic}
+                          onChange={(e) => setIsPublic(e.target.checked)}
+                        />
+                        Make dream public
+                      </label>
+                      
+                      <DatePicker
+                        selected={selectedDate}
+                        onChange={(date) => setSelectedDate(date)}
+                        className="NewDream-datepicker"
+                      />
+                    </div>
 
-            <div className="NewDream-buttons">
-              <button
-                onClick={generateImage}
-                className="NewDream-button u-pointer"
-                disabled={!inputText.trim() || isLoading}
-              >
-                {isLoading ? "Generating..." : "Generate Image"}
-              </button>
-              
-              <button
-                onClick={saveDream}
-                className="NewDream-button u-pointer"
-                disabled={!inputText.trim() || !imageUrl || isLoading}
-              >
-                Save Dream
-              </button>
+                    <div className="NewDream-buttons">
+                      <button
+                        onClick={generateImage}
+                        className="NewDream-button u-pointer"
+                        disabled={!inputText.trim() || isLoading}
+                      >
+                        {isLoading ? "Generating..." : "Generate Image"}
+                      </button>
+                      
+                      <button
+                        onClick={saveDream}
+                        className="NewDream-button u-pointer"
+                        disabled={!inputText.trim() || !imageUrl || isLoading}
+                      >
+                        Save Dream
+                      </button>
+                    </div>
+                  </div>
+
+                  {imageUrl && (
+                    <div className="NewDream-imagePreview">
+                      <img src={imageUrl} alt="Generated dream visualization" />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="DreamList-container">
+                <h2>My Dreams</h2>
+                {dreams.map((dream, i) => (
+                  <div key={dream._id || i} className="Dream-card">
+                    <p>{dream.text}</p>
+                    {dream.imageUrl && (
+                      <img src={dream.imageUrl} alt="Dream visualization" className="Dream-image" />
+                    )}
+                    <div className="Dream-tags">
+                      {dream.tags?.map((tag) => (
+                        <span
+                          key={tag.id}
+                          className="tag"
+                          style={{ backgroundColor: tag.color }}
+                        >
+                          {tag.text}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="Dream-footer">
+                      <span>{new Date(dream.date).toLocaleDateString()}</span>
+                      <button
+                        onClick={() => toggleDreamPrivacy(dream._id)}
+                        className="Dream-privacyToggle"
+                      >
+                        {dream.public ? "Make Private" : "Make Public"}
+                      </button>
+                      {dream.public && <span className="Dream-public">Public</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-
-          {imageUrl && (
-            <div className="NewDream-imagePreview">
-              <img src={imageUrl} alt="Generated dream visualization" />
-            </div>
-          )}
+        </>
+      ) : (
+        <div className="App-container">
+          <StarryBackground />
+          <div className="login-container">
+            <GoogleLogin onSuccess={handleLogin} onError={(err) => console.log(err)} />
+          </div>
         </div>
       )}
-
-      <div className="DreamList-container">
-        {dreams.map((dream, i) => (
-          <div key={dream._id || i} className="Dream-card">
-            {dream.public && dream.userProfile && (
-              <div className="Dream-author">
-                <img 
-                  src={dream.userProfile.picture} 
-                  alt={dream.userProfile.name}
-                  className="Dream-authorPic"
-                />
-                <span className="Dream-authorName">{dream.userProfile.name}</span>
-              </div>
-            )}
-            <p>{dream.text}</p>
-            {dream.imageUrl && (
-              <img src={dream.imageUrl} alt="Dream visualization" className="Dream-image" />
-            )}
-            <div className="Dream-tags">
-              {dream.tags?.map((tag) => (
-                <span
-                  key={tag.id}
-                  className="tag"
-                  style={{ backgroundColor: tag.color }}
-                >
-                  {tag.text}
-                </span>
-              ))}
-            </div>
-            <div className="Dream-footer">
-              <span>{new Date(dream.date).toLocaleDateString()}</span>
-              {dream.public && <span className="Dream-public">Public</span>}
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
+    </GoogleOAuthProvider>
   );
 };
 

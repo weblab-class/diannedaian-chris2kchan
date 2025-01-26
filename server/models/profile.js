@@ -6,17 +6,9 @@ const ProfileSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  displayName: {
-    type: String,
-    default: "Dreamer",
-  },
-  picture: {
-    type: String,
-    default: "/default-profile.svg",
-  },
   name: {
     type: String,
-    default: "",
+    default: "Dreamer",
   },
   bio: {
     type: String,
@@ -24,7 +16,7 @@ const ProfileSchema = new mongoose.Schema({
   },
   avatarUrl: {
     type: String,
-    default: "",
+    default: "/client/dist/assets/default-profile.svg",
   },
   dreamCount: {
     type: Number,
@@ -62,14 +54,12 @@ const ProfileSchema = new mongoose.Schema({
 });
 
 // Update dream counts
-ProfileSchema.methods.updateDreamCounts = async function () {
-  const Dream = mongoose.model("dream");
-  const totalDreams = await Dream.countDocuments({ userId: this.userId });
-  const publicDreams = await Dream.countDocuments({ userId: this.userId, public: true });
+ProfileSchema.methods.updateDreamCounts = async function() {
+  const Dream = require("./dream");
+  const dreams = await Dream.find({ userId: this.userId });
   
-  this.dreamCount = totalDreams;
-  this.publicDreamCount = publicDreams;
-  return this.save();
+  this.dreamCount = dreams.length;
+  this.publicDreamCount = dreams.filter(dream => dream.public).length;
 };
 
 module.exports = mongoose.model("profile", ProfileSchema);
