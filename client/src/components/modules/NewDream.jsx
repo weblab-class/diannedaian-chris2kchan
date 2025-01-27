@@ -12,6 +12,7 @@ const NewDream = ({ onNewDream, onClose }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [generatedImage, setGeneratedImage] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     // Disable scrolling on mount
@@ -23,11 +24,16 @@ const NewDream = ({ onNewDream, onClose }) => {
     };
   }, []);
 
+  useEffect(() => {
+    // Set loaded after first render
+    setIsLoaded(true);
+  }, []);
+
   const handleGenerateImage = async () => {
     if (!dreamText.trim()) return;
     setIsGeneratingImage(true);
     try {
-      const imageResponse = await post("/api/generate-image", { prompt: dreamText });
+      const imageResponse = await post("/api/generate-dream-image", { prompt: dreamText });
       setGeneratedImage(imageResponse.imageUrl);
     } catch (err) {
       console.log(err);
@@ -46,10 +52,12 @@ const NewDream = ({ onNewDream, onClose }) => {
         imageUrl: generatedImage,
         public: isPublic,
         tags: selectedTags,
-        date: selectedDate,
+        dateCreated: selectedDate.toISOString(), // Ensure date is properly formatted
       };
 
+      console.log("Saving dream with data:", dream);
       const newDream = await post("/api/dreams", dream);
+      console.log("Received saved dream:", newDream);
       onNewDream(newDream);
       
       // Reset form and close popup
@@ -59,7 +67,7 @@ const NewDream = ({ onNewDream, onClose }) => {
       setGeneratedImage(null);
       onClose();
     } catch (err) {
-      console.log(err);
+      console.log("Error saving dream:", err);
     }
   };
 
@@ -68,6 +76,10 @@ const NewDream = ({ onNewDream, onClose }) => {
       onClose();
     }
   };
+
+  if (!isLoaded) {
+    return null;
+  }
 
   return (
     <div className="NewDream-overlay" onClick={handleOverlayClick}>
@@ -99,7 +111,7 @@ const NewDream = ({ onNewDream, onClose }) => {
               <button
                 type="button"
                 onClick={handleGenerateImage}
-                disabled={!dreamText.trim() || isGeneratingImage}
+                disabled={!dreamText.trim() || isGeneratingImage || generatedImage}
               >
                 <img src="/assets/generatedreambutton.png" alt="Generate Dream" />
               </button>

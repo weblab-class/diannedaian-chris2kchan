@@ -39,7 +39,9 @@ function convertToJSON(res) {
 // Returns a Promise to a JSON Object.
 export function get(endpoint, params = {}) {
   const fullPath = endpoint + "?" + formatParams(params);
-  return fetch(fullPath)
+  return fetch(fullPath, {
+    credentials: "include", // This ensures cookies are sent with the request
+  })
     .then(convertToJSON)
     .catch((error) => {
       // give a useful error message
@@ -54,6 +56,7 @@ export function post(endpoint, params = {}) {
     method: "post",
     headers: { "Content-type": "application/json" },
     body: JSON.stringify(params),
+    credentials: "include", // This ensures cookies are sent with the request
   })
     .then(convertToJSON) // convert result to JSON object
     .catch((error) => {

@@ -151,6 +151,44 @@ router.post("/dreams", auth.ensureLoggedIn, async (req, res) => {
   }
 });
 
+// Update a dream
+router.post("/dreams/update", auth.ensureLoggedIn, async (req, res) => {
+  try {
+    console.log("Updating dream with body:", req.body);
+    console.log("Current user:", req.user);
+
+    const dream = await Dream.findById(req.body._id);
+    if (!dream) {
+      console.log("Dream not found with id:", req.body._id);
+      return res.status(404).send({ error: "Dream not found" });
+    }
+    
+    console.log("Found dream:", dream);
+    console.log("Dream userId:", dream.userId);
+    console.log("User googleid:", req.user.googleid);
+
+    // Only allow the creator to update the dream
+    if (dream.userId !== req.user.googleid) {
+      console.log("Authorization failed - userId mismatch");
+      return res.status(403).send({ error: "Not authorized to update this dream" });
+    }
+
+    // Update the dream fields
+    dream.text = req.body.text;
+    dream.date = req.body.dateCreated;
+    dream.tags = req.body.tags;
+    dream.public = req.body.public;
+    dream.imageUrl = req.body.imageUrl;
+
+    console.log("Saving updated dream:", dream);
+    await dream.save();
+    res.send(dream);
+  } catch (err) {
+    console.log("Error updating dream:", err);
+    res.status(500).send(err);
+  }
+});
+
 // Get user's private dreams feed (includes both public and private dreams)
 router.get("/get-user-dreams/:userId", auth.ensureLoggedIn, async (req, res) => {
   try {
@@ -176,6 +214,18 @@ router.get("/public-dreams", async (req, res) => {
     console.error("Error fetching public dreams:", error);
     res.status(500).json({ error: "Failed to fetch public dreams" });
   }
+});
+
+// Get all dreams for a user
+router.get("/dreams/:userId", (req, res) => {
+  Dream.find({ creator_id: req.params.userId })
+    .then((dreams) => {
+      res.send(dreams);
+    })
+    .catch((err) => {
+      console.log(`Failed to get dreams for user ${req.params.userId}`, err);
+      res.status(500).send(err);
+    });
 });
 
 // Toggle dream privacy

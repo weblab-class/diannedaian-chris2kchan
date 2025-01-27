@@ -9,7 +9,7 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  overflow: hidden;
+  animation: fadeIn 0.2s ease-out;
 }
 
 .NewDream-popup {
@@ -17,6 +17,8 @@
   max-width: 900px;
   background: transparent;
   position: relative;
+  animation: slideIn 0.3s ease-out;
+  opacity: 1;
 }
 
 .NewDream-card-background {
@@ -76,7 +78,7 @@
 
 .NewDream-image-area {
   position: absolute;
-  top: 20%;
+  top: 21.5%;
   left: 10%;
   width: 75%;
   aspect-ratio: 3/2;
@@ -99,10 +101,11 @@
 }
 
 .NewDream-generated-image {
-  max-width: 95%;
-  max-height: 95%;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   border-radius: 4px;
+  opacity: 1;
 }
 
 .NewDream-generate-button {
@@ -114,38 +117,37 @@
 }
 
 .NewDream-generate-button button {
-  width: 100%;
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
+  width: 100%;
+  transition: transform 0.2s ease;
+}
+
+.NewDream-generate-button button:disabled {
+  cursor: default;
+}
+
+.NewDream-generate-button button:not(:disabled):hover {
+  transform: scale(1.1);
 }
 
 .NewDream-generate-button img {
   width: 100%;
   height: auto;
-  object-fit: contain;
   filter: saturate(50%) brightness(90%);
   transition: filter 0.3s ease;
 }
 
-.NewDream-generate-button button:not(:disabled):hover img {
+.NewDream-generate-button button:not(:disabled) img {
   filter: saturate(100%) brightness(100%);
-}
-
-.NewDream-generate-button button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.NewDream-generate-button button:disabled img {
-  filter: saturate(30%) brightness(80%);
 }
 
 .NewDream-tags {
   position: absolute;
-  top: 30%;
-  left: 5%;
+  top: 7%;
+  left: 1%;
   width: 60%;
 }
 
@@ -167,15 +169,17 @@
 
 .NewDream-save-button {
   position: absolute;
-  top: 25%;
-  right: 5%;
+  top: -1%;
+  right: 15%;
   width: 25%;
+  background:transparent;
+  border:none;
 }
 
 .NewDream-save-button img {
   position: relative;
-  top: -150px;
-  left: -20px;
+  top: 0px;
+  left: 0px;
   width: 100%;
   height: auto;
   filter: saturate(50%) brightness(90%);
@@ -194,8 +198,8 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 20px;
-  top: 0px;
-  left: 0px;
+  top: 10px;
+  left: 10px;
   cursor: pointer;
 }
 
@@ -256,7 +260,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  top: 120px;
+  top: 125px;
   left: -15px;
 }
 
@@ -337,4 +341,24 @@
 .NewDream-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

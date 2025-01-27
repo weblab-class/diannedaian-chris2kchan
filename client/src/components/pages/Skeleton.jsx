@@ -9,6 +9,7 @@ import StarryBackground from "../modules/StarryBackground";
 import ScrollingTreeStem from "../modules/ScrollingTreeStem"; 
 import AddDreamButton from "../modules/AddDreamButton";
 import { NavBar } from "../NavBar";
+import Postcard from "../modules/Postcard"; // Import Postcard component
 import "../../utilities.css";
 import "./Skeleton.css";
 
@@ -28,6 +29,8 @@ const Skeleton = () => {
   const [isPublic, setIsPublic] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
   const [userProfile, setUserProfile] = useState(null);
+  const [selectedDream, setSelectedDream] = useState(null);
+  const [showPostcard, setShowPostcard] = useState(false);
 
   // Add refresh interval for profile
   useEffect(() => {
@@ -57,17 +60,30 @@ const Skeleton = () => {
   }, [userId]);
 
   useEffect(() => {
+    const fetchDreams = async () => {
+      try {
+        const response = await fetch(`/api/get-user-dreams/${userId}`, {
+          credentials: "include",  // Add credentials for authentication
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch dreams");
+        }
+        const data = await response.json();
+        // Sort dreams by date, newest first
+        const sortedDreams = data.sort((a, b) => {
+          const dateA = new Date(a.dateCreated || a.date);
+          const dateB = new Date(b.dateCreated || b.date);
+          return dateB - dateA;
+        });
+        console.log("Fetched dreams:", sortedDreams);
+        setDreams(sortedDreams);
+      } catch (err) {
+        console.error("Error fetching dreams:", err);
+      }
+    };
+
     if (userId) {
-      // Fetch user's dreams (both public and private)
-      fetch(`/api/get-user-dreams/${userId}`, {
-        credentials: "include",
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("Received user dreams:", data);
-          setDreams(data);
-        })
-        .catch((err) => console.error("Error fetching dreams:", err));
+      fetchDreams();
     }
   }, [userId]);
 
@@ -182,7 +198,41 @@ const Skeleton = () => {
             handleLogout={handleLogout}
             userId={userId}
           />
-          <ScrollingTreeStem />
+          <div className="App-treestem">
+            <ScrollingTreeStem 
+              dreams={dreams} 
+              onDreamClick={(dream) => {
+                setSelectedDream(dream);
+                setShowPostcard(true);
+                setShowInput(false);
+              }}
+            />
+          </div>
+          {showPostcard && selectedDream && (
+            <div 
+              className="NewDream-overlay" 
+              onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                  setShowPostcard(false);
+                  setSelectedDream(null);
+                }
+              }}
+            >
+              <Postcard
+                dream={selectedDream}
+                onClose={() => {
+                  setShowPostcard(false);
+                  setSelectedDream(null);
+                }}
+                onUpdate={(updatedDream) => {
+                  setDreams(dreams.map(d => 
+                    d._id === updatedDream._id ? updatedDream : d
+                  ));
+                  setSelectedDream(updatedDream);
+                }}
+              />
+            </div>
+          )}
           <StarryBackground />
           <AddDreamButton onNewDream={(newDream) => setDreams([newDream, ...dreams])} />
           <div className="App-container">
