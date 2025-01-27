@@ -4,6 +4,7 @@ import jwt_decode from "jwt-decode";
 
 import { NavBar } from "./NavBar";
 import LoginScreen from "./pages/LoginScreen";
+import EnvelopeAnimation from "./modules/EnvelopeAnimation";
 
 import "../utilities.css";
 import "../fonts.css";
@@ -18,8 +19,38 @@ const App = () => {
   const [userId, setUserId] = useState(undefined);
   const [userName, setUserName] = useState(undefined);
   const [userProfile, setUserProfile] = useState(null);
+  const [showAnimation, setShowAnimation] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch user profile whenever userId changes
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const user = await get("/api/whoami");
+        if (user._id) {
+          // User is logged in
+          setUserId(user.googleid);
+          setUserName(user.name);
+        } else {
+          // No user found, clear state
+          setUserId(undefined);
+          setUserName(undefined);
+          setUserProfile(null);
+        }
+      } catch (err) {
+        console.error("Error checking auth:", err);
+        // On error, clear state
+        setUserId(undefined);
+        setUserName(undefined);
+        setUserProfile(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []); // Only run on mount
+
+  // Fetch profile whenever userId changes
   useEffect(() => {
     const fetchProfile = async () => {
       if (userId) {
@@ -27,6 +58,9 @@ const App = () => {
           const response = await fetch(`/api/profile/${userId}`, {
             credentials: "include",
           });
+          if (!response.ok) {
+            throw new Error("Failed to fetch profile");
+          }
           const data = await response.json();
           setUserProfile(data);
         } catch (error) {
@@ -35,27 +69,37 @@ const App = () => {
       }
     };
 
-    fetchProfile();
+    if (userId) {
+      fetchProfile();
+    }
   }, [userId]);
 
-  useEffect(() => {
-    get("/api/whoami").then((user) => {
-      if (user._id) {
-        setUserId(user._id);
-        setUserName(user.name);
-      }
-    });
-  }, []);
-
-  const handleLogin = (credentialResponse) => {
+  const handleLogin = async (credentialResponse) => {
     const userToken = credentialResponse.credential;
     const decodedCredential = jwt_decode(userToken);
-    console.log(`Logged in as ${decodedCredential.name}`);
-    post("/api/login", { token: userToken }).then((user) => {
-      setUserId(user._id);
+
+    try {
+      setShowAnimation(true);
+      
+      // Wait for login to complete
+      const user = await post("/api/login", { token: userToken });
+      await post("/api/initsocket", { socketid: socket.id });
+      
+      // Set user data
+      setUserId(user.googleid);
       setUserName(user.name);
-      post("/api/initsocket", { socketid: socket.id });
-    });
+      
+      // Wait for profile to be created/fetched
+      const profileResponse = await fetch(`/api/profile/${user.googleid}`, {
+        credentials: "include",
+      });
+      const profile = await profileResponse.json();
+      setUserProfile(profile);
+      
+    } catch (err) {
+      console.error("Error during login:", err);
+      setShowAnimation(false);
+    }
   };
 
   const handleLogout = () => {
@@ -64,6 +108,20 @@ const App = () => {
     setUserProfile(null);
     post("/api/logout");
   };
+
+  if (isLoading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (showAnimation) {
+    return (
+      <EnvelopeAnimation
+        onAnimationComplete={() => {
+          setShowAnimation(false);
+        }}
+      />
+    );
+  }
 
   return (
     <UserContext.Provider value={{ userId, userName, userProfile, setUserProfile }}>

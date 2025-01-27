@@ -1,0 +1,152 @@
+.PublicPost-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.PublicPost-container {
+  background: white;
+  width: 90%;
+  max-width: 1000px;
+  height: 90vh;
+  max-height: 600px;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.PublicPost-content {
+  display: flex;
+  height: 100%;
+}
+
+.PublicPost-left {
+  flex: 1;
+  background: #8b7ab8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.PublicPost-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.PublicPost-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.PublicPost-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 20px;
+}
+
+.PublicPost-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.PublicPost-profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.PublicPost-username {
+  font-family: "Pixelify Sans", monospace;
+  font-size: 1.1rem;
+  color: #2c1810;
+}
+
+.PublicPost-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.PublicPost-details {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.PublicPost-text {
+  margin-bottom: 20px;
+  line-height: 1.5;
+  color: #2c1810;
+}
+
+.PublicPost-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.PublicPost-tag {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  color: #2c1810;
+}
+
+.PublicPost-divider {
+  height: 2px;
+  background-color: #8b7ab8;
+  margin: 20px 0;
+}
+
+.PublicPost-comments {
+  height: 200px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.PublicPost-no-comments {
+  color: #666;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Custom scrollbar for webkit browsers */
+.PublicPost-details::-webkit-scrollbar,
+.PublicPost-comments::-webkit-scrollbar {
+  width: 8px;
+}
+
+.PublicPost-details::-webkit-scrollbar-track,
+.PublicPost-comments::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.PublicPost-details::-webkit-scrollbar-thumb,
+.PublicPost-comments::-webkit-scrollbar-thumb {
+  background: #8b7ab8;
+  border-radius: 4px;
+}
+
+.PublicPost-details::-webkit-scrollbar-thumb:hover,
+.PublicPost-comments::-webkit-scrollbar-thumb:hover {
+  background: #7a69a8;
+}

@@ -6,10 +6,11 @@ import { post } from "../../utilities";
 import "./NewDream.css";
 
 const Postcard = ({ dream, onClose, onUpdate }) => {
+  // Initialize isPublic with the dream's public state, defaulting to false if undefined
   const [dreamText, setDreamText] = useState(dream.text || "");
   const [selectedDate, setSelectedDate] = useState(dream.dateCreated ? new Date(dream.dateCreated) : new Date());
   const [selectedTags, setSelectedTags] = useState(dream.tags || []);
-  const [isPublic, setIsPublic] = useState(dream.public || false);
+  const [isPublic, setIsPublic] = useState(dream.public === true);
   const [imageUrl, setImageUrl] = useState(dream.imageUrl || "");
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -18,6 +19,8 @@ const Postcard = ({ dream, onClose, onUpdate }) => {
     // Disable scrolling on mount
     document.body.style.overflow = 'hidden';
     setIsLoaded(true);
+    console.log("Initial dream public state:", dream.public);
+    console.log("Initial isPublic state:", isPublic);
     
     // Re-enable scrolling on unmount
     return () => {
@@ -43,6 +46,7 @@ const Postcard = ({ dream, onClose, onUpdate }) => {
 
     try {
       console.log("Original dream:", dream);
+      console.log("Current public state:", isPublic);
       
       const updatedDream = {
         _id: dream._id,
@@ -118,7 +122,10 @@ const Postcard = ({ dream, onClose, onUpdate }) => {
               <input
                 type="checkbox"
                 checked={isPublic}
-                onChange={(e) => setIsPublic(e.target.checked)}
+                onChange={(e) => {
+                  console.log("Toggling public state to:", e.target.checked);
+                  setIsPublic(e.target.checked);
+                }}
               />
               <span className="NewDream-toggle-slider"></span>
               <span className="NewDream-toggle-label">Make Public</span>

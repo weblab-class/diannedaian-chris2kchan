@@ -3,6 +3,7 @@ import cloud1 from "/assets/cloud1.png";
 import cloud2 from "/assets/cloud2.png";
 import cloud3 from "/assets/cloud3.png";
 import "./DreamCloud.css";
+import "../../fonts.css";
 
 const DreamCloud = ({ dream, position, onDreamClick }) => {
   // Cycle through clouds in order based on position
@@ -23,8 +24,9 @@ const DreamCloud = ({ dream, position, onDreamClick }) => {
       const date = new Date(dateStr);
       if (!isNaN(date.getTime())) {
         return date.toLocaleDateString('en-US', {
-          month: 'short',
+          month: 'numeric',
           day: 'numeric',
+          year: 'numeric',
         });
       }
       

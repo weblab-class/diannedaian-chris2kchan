@@ -61,31 +61,41 @@ const Skeleton = () => {
 
   useEffect(() => {
     const fetchDreams = async () => {
+      if (!userId) return; // Don't fetch if not logged in
+
       try {
         const response = await fetch(`/api/get-user-dreams/${userId}`, {
-          credentials: "include",  // Add credentials for authentication
+          credentials: "include",
         });
         if (!response.ok) {
-          throw new Error("Failed to fetch dreams");
+          throw new Error(`Failed to fetch dreams: ${response.statusText}`);
         }
         const data = await response.json();
+        
         // Sort dreams by date, newest first
         const sortedDreams = data.sort((a, b) => {
           const dateA = new Date(a.dateCreated || a.date);
           const dateB = new Date(b.dateCreated || b.date);
           return dateB - dateA;
         });
-        console.log("Fetched dreams:", sortedDreams);
+
+        console.log("✨ Fetched dreams:", sortedDreams);
         setDreams(sortedDreams);
       } catch (err) {
-        console.error("Error fetching dreams:", err);
+        console.error("❌ Error fetching dreams:", err);
+        // Don't clear dreams on error - keep existing state
       }
     };
 
-    if (userId) {
-      fetchDreams();
-    }
-  }, [userId]);
+    // Fetch dreams immediately when userId is available
+    fetchDreams();
+
+    // Set up periodic refresh every 30 seconds
+    const intervalId = setInterval(fetchDreams, 30000);
+
+    // Cleanup interval on unmount or userId change
+    return () => clearInterval(intervalId);
+  }, [userId]); // Only re-run if userId changes
 
   const generateImage = async () => {
     if (!inputText) return;

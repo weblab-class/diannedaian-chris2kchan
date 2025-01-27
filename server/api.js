@@ -177,11 +177,19 @@ router.post("/dreams/update", auth.ensureLoggedIn, async (req, res) => {
     dream.text = req.body.text;
     dream.date = req.body.dateCreated;
     dream.tags = req.body.tags;
-    dream.public = req.body.public;
+    dream.public = Boolean(req.body.public); // Ensure it's a boolean
     dream.imageUrl = req.body.imageUrl;
 
-    console.log("Saving updated dream:", dream);
+    console.log("About to save updated dream with fields:", {
+      text: dream.text,
+      date: dream.date,
+      tags: dream.tags,
+      public: dream.public,
+      imageUrl: dream.imageUrl
+    });
+
     await dream.save();
+    console.log("Successfully saved dream with public status:", dream.public);
     res.send(dream);
   } catch (err) {
     console.log("Error updating dream:", err);
@@ -202,14 +210,38 @@ router.get("/get-user-dreams/:userId", auth.ensureLoggedIn, async (req, res) => 
   }
 });
 
-// Get public dreams feed (from all users)
+// Get public dreams for gallery
 router.get("/public-dreams", async (req, res) => {
   try {
-    const publicDreams = await Dream.find({ public: true })
-      .sort({ date: -1 }) // Sort by date descending
-      .limit(50); // Limit to 50 dreams at a time
+    console.log("Fetching public dreams from database...");
+    const dreams = await Dream.find({ public: true })
+      .sort({ date: -1 }) // Sort by date descending (newest first)
+      .limit(100); // Limit to 100 dreams for performance
+    
+    console.log(`Found ${dreams.length} public dreams`);
+    
+    // Get user profiles for all dream creators
+    const userProfiles = await Promise.all(
+      dreams.map(async (dream) => {
+        const profile = await Profile.findOne({ userId: dream.userId });
+        return {
+          dreamId: dream._id,
+          profile: profile || { name: "Anonymous Dreamer", picture: "/assets/profilepic.png" }
+        };
+      })
+    );
 
-    res.json(publicDreams);
+    // Combine dreams with their creator's profile
+    const dreamsWithProfiles = dreams.map(dream => {
+      const userProfile = userProfiles.find(p => p.dreamId.equals(dream._id));
+      return {
+        ...dream.toObject(),
+        userProfile: userProfile.profile
+      };
+    });
+    
+    console.log("Sending dreams with profiles:", dreamsWithProfiles);
+    res.json(dreamsWithProfiles);
   } catch (error) {
     console.error("Error fetching public dreams:", error);
     res.status(500).json({ error: "Failed to fetch public dreams" });

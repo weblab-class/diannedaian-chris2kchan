@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./components/App";
 import Skeleton from "./components/pages/Skeleton";
 import NotFound from "./components/pages/NotFound";
-import Gallery from "./components/Gallery";
+import Gallery from "./components/pages/Gallery";
 import Profile from "./components/pages/Profile";
 
 import {

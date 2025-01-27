@@ -3,20 +3,19 @@ const mongoose = require("mongoose");
 const DreamSchema = new mongoose.Schema({
   userId: { type: String, required: true },
   text: { type: String, required: true }, // dream log
-  imageUrl: { type: String }, // AI-generated image (optional)
   date: { 
     type: Date, 
     default: Date.now 
   }, // Timestamp
+  tags: [{
+    text: String,
+    color: String
+  }],
   public: { 
     type: Boolean, 
     default: false 
   }, // Whether the dream is public
-  tags: [{
-    id: String,
-    text: String,
-    color: String
-  }],
+  imageUrl: { type: String }, // AI-generated image (optional)
   // Add user profile info for public dreams
   userProfile: {
     name: String,
