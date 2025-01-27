@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { post } from "../../utilities";
 import TagInput from "./TagInput";
 import DatePicker from "react-datepicker";
@@ -12,6 +12,16 @@ const NewDream = ({ onNewDream, onClose }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [generatedImage, setGeneratedImage] = useState(null);
+
+  useEffect(() => {
+    // Disable scrolling on mount
+    document.body.style.overflow = 'hidden';
+    
+    // Re-enable scrolling on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
 
   const handleGenerateImage = async () => {
     if (!dreamText.trim()) return;

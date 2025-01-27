@@ -44,20 +44,22 @@
 .cloud-layer-1 {
   background-size: contain;
   background-position: bottom;
-  animation: slideBackground 200s linear infinite; /* Much slower: 3 minutes per cycle */
+  animation: slideBackground 150s linear infinite;
   z-index: 3;
-  opacity: 0.8;
+  opacity: 1.0;
   height: 150%; /* Adjust height to zoom in on the clouds */
+  bottom: -50px; /* Added bottom offset to match cloud-layer-2 */
+  position: absolute;
 }
 
 .cloud-layer-2 {
   background-size: contain;
   background-position: bottom;
-  animation: slideBackground 150s linear infinite; /* 2.5 minutes per cycle */
+  animation: slideBackground 200s linear infinite;
   z-index: 2;
   opacity: 1;
   height: 180%; /* Adjust height to zoom in on the clouds */
-  bottom: -10px; /* Small offset to move it down */
+  bottom: -50px; /* Increased bottom offset */
   position: absolute;
 }
 

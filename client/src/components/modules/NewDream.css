@@ -1,11 +1,3 @@
-.NewDream-container {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 24px;
-}
-
 .NewDream-overlay {
   position: fixed;
   top: 0;
@@ -17,12 +9,14 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  overflow: hidden;
 }
 
 .NewDream-popup {
   width: 90%;
   max-width: 900px;
   background: transparent;
+  position: relative;
 }
 
 .NewDream-card-background {
@@ -38,67 +32,66 @@
   width: 100%;
   height: 100%;
   display: flex;
-  padding: 30px 40px;
+  padding: 3% 4%;
 }
 
 .NewDream-left-side {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  padding-right: 30px;
+  position: relative;
+  padding-right: 3%;
 }
 
 .NewDream-right-side {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  padding-left: 30px;
+  position: relative;
+  padding-left: 3%;
 }
 
 .NewDream-date {
-  width: 100%;
+  position: absolute;
+  top: 25%;
+  left: 70%;
+  width: 40%;
   margin-bottom: 10px;
   position: relative;
-  top: 100px;
-  left: 300px;
+  top: 10px;
+  left: 50px;
 }
 
 .NewDream-date-input {
   width: 100%;
   padding: 8px;
-  border: 2px solid #6b8afd;
+  border: 2px solid #5F80E0;
   border-radius: 4px;
   font-family: "Pixelify Sans", sans-serif;
   font-size: 16px;
-  color: #6b8afd;
+  color: #5F80E0;
   background: transparent;
   text-align: center;
 }
 
 .NewDream-image-area {
-  flex: none;
-  border: 2px dashed #6b8afd;
+  position: absolute;
+  top: 20%;
+  left: 10%;
+  width: 75%;
+  aspect-ratio: 3/2;
+  border: 1px solid #ccc;
   border-radius: 4px;
   display: flex;
   justify-content: center;
   align-items: center;
   background: transparent;
-  width: 350px;
-  height: 150px;
-  min-height: 300px;
-  max-height: 300px;
-  margin: 20px 0;
-  color: #6b8afd;
+  color: #5F80E0;
   font-family: "Pixelify Sans", sans-serif;
-  position: relative;
-  top: 80px;
-  left: 305px;
 }
 
 .NewDream-image-placeholder {
-  color: #6b8afd;
+  color: #5F80E0;
   text-align: center;
   padding: 20px;
   font-family: "Pixelify Sans", sans-serif;
@@ -113,10 +106,11 @@
 }
 
 .NewDream-generate-button {
-  margin-top: auto;
-  position: relative;
-  top: -200px;
-  left:130px;
+  position: absolute;
+  bottom: 15%;
+  left: 47%;
+  transform: translateX(-50%);
+  width: 60%;
 }
 
 .NewDream-generate-button button {
@@ -128,9 +122,15 @@
 }
 
 .NewDream-generate-button img {
-  width: 250px;
+  width: 100%;
   height: auto;
   object-fit: contain;
+  filter: saturate(50%) brightness(90%);
+  transition: filter 0.3s ease;
+}
+
+.NewDream-generate-button button:not(:disabled):hover img {
+  filter: saturate(100%) brightness(100%);
 }
 
 .NewDream-generate-button button:disabled {
@@ -138,65 +138,74 @@
   cursor: not-allowed;
 }
 
-.NewDream-top-controls {
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-  margin-bottom: 15px;
+.NewDream-generate-button button:disabled img {
+  filter: saturate(30%) brightness(80%);
 }
 
 .NewDream-tags {
-  width: 200px;
-  position: relative;
-  top: 135px;
-  left: -32.5px;
+  position: absolute;
+  top: 30%;
+  left: 5%;
+  width: 60%;
 }
 
 .NewDream-tags input {
-  border: 2px solid #6b8afd !important;
+  border: 2px solid #5F80E0 !important;
   border-radius: 4px !important;
   font-family: "Pixelify Sans", sans-serif !important;
   font-size: 16px !important;
-  color: #6b8afd !important;
+  color: #5F80E0 !important;
   background: transparent !important;
   padding: 8px !important;
   width: 100% !important;
 }
 
 .NewDream-tags input::placeholder {
-  color: #6b8afd !important;
+  color: #5F80E0 !important;
   opacity: 0.7 !important;
 }
 
 .NewDream-save-button {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+  position: absolute;
+  top: 25%;
+  right: 5%;
+  width: 25%;
 }
 
 .NewDream-save-button img {
   position: relative;
-  top: 100px;
-  left: 0px;
-  width: 150px;
+  top: -150px;
+  left: -20px;
+  width: 100%;
   height: auto;
+  filter: saturate(50%) brightness(90%);
+  transition: filter 0.3s ease;
+}
+
+.NewDream-save-button:hover img {
+  filter: saturate(100%) brightness(100%);
 }
 
 .NewDream-toggle {
-  position: relative;
+  position: absolute;
+  top: 45%;
+  left: 5%;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 20px;
-  top: -120px;
-  left: -38px;
+  top: 0px;
+  left: 0px;
+  cursor: pointer;
 }
 
 .NewDream-toggle input {
+  position: absolute;
   opacity: 0;
-  width: 0;
-  height: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  cursor: pointer;
 }
 
 .NewDream-toggle-slider {
@@ -208,7 +217,7 @@
   border-radius: 24px;
   transition: 0.4s;
   cursor: pointer;
-  border: 2px solid #6b8afd;
+  border: 2px solid #5F80E0;
 }
 
 .NewDream-toggle-slider:before {
@@ -218,7 +227,7 @@
   width: 16px;
   left: 2px;
   bottom: 2px;
-  background-color: #6b8afd;
+  background-color: #5F80E0;
   border-radius: 50%;
   transition: 0.4s;
 }
@@ -232,54 +241,56 @@
 }
 
 .NewDream-toggle-label {
-  color: #6b8afd;
+  color: #5F80E0;
   font-size: 16px;
   font-family: "Pixelify Sans", sans-serif;
 }
 
 .NewDream-text {
+  position: absolute;
+  top: 55%;
+  left: 5%;
+  width: 80%;
+  height: 60%;
   flex: none;
   display: flex;
   flex-direction: column;
   position: relative;
-  top: -10px;
-  left: -30px;
-  width: 345px;
-  height: 200px;
-  min-height: px;
-  max-height: 200px;
+  top: 120px;
+  left: -15px;
 }
 
 .NewDream-input {
   width: 100%;
-  height: 200px;
-  min-height: 200px;
-  max-height: 200px;
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
   padding: 0;
-  border: 2px dashed #6b8afd;
+  border: 2px dashed #5F80E0;
   border-radius: 4px;
   background: transparent;
   resize: none;
   font-family: "Pixelify Sans", sans-serif;
   font-size: 16px;
-  color: #6b8afd;
+  color: #5F80E0;
   line-height: 3;
   background-image: repeating-linear-gradient(
     transparent,
     transparent calc(3em - 1px),
-    #6b8afd calc(3em - 1px),
-    #6b8afd 3em
+    #5F80E0 calc(3em - 1px),
+    #5F80E0 3em
   );
   background-size: 100% 3em;
 }
 
-.NewDream-input::placeholder {
-  color: #6b8afd;
-  opacity: 0.7;
-}
-
 .NewDream-input:focus {
   outline: none;
+  border: 2px dashed #5F80E0;
+}
+
+.NewDream-input::placeholder {
+  color: #5F80E0;
+  opacity: 0.7;
 }
 
 .NewDream-controls {
@@ -309,7 +320,7 @@
 }
 
 .NewDream-button {
-  background-color: #6b8afd;
+  background-color: #5F80E0;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -320,7 +331,7 @@
 }
 
 .NewDream-button:hover {
-  background-color: #5a74d5;
+  background-color: #4d69d5;
 }
 
 .NewDream-button:disabled {
