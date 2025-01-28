@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { UserContext } from "../App";
 import StarryBackground from "../modules/StarryBackground";
+import MiniGallery from "../modules/MiniGallery";
 import "./Profile.css";
 
 const Profile = () => {
@@ -9,6 +10,7 @@ const Profile = () => {
   const { userId } = useParams(); // Get userId from URL
   const { userId: currentUserId, userProfile, setUserProfile } = useContext(UserContext);
   const [profile, setProfile] = useState(null);
+  const [publicDreams, setPublicDreams] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editForm, setEditForm] = useState({
@@ -25,30 +27,37 @@ const Profile = () => {
     },
   });
 
-  // Fetch profile data
+  // Fetch profile data and public dreams
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`/api/profile/${userId || currentUserId}`, {
-          credentials: "include",
-        });
-        const data = await response.json();
-        setProfile(data);
+        const [profileResponse, dreamsResponse] = await Promise.all([
+          fetch(`/api/profile/${userId || currentUserId}`, {
+            credentials: "include",
+          }),
+          fetch(`/api/dreams/public/${userId || currentUserId}`)
+        ]);
+
+        const profileData = await profileResponse.json();
+        const dreamsData = await dreamsResponse.json();
+
+        setProfile(profileData);
+        setPublicDreams(dreamsData);
         setEditForm({
-          name: data.name || "",
-          bio: data.bio || "",
-          socialLinks: data.socialLinks || {},
-          preferences: data.preferences || {},
+          name: profileData.name || "",
+          bio: profileData.bio || "",
+          socialLinks: profileData.socialLinks || {},
+          preferences: profileData.preferences || {},
         });
       } catch (error) {
-        console.error("Error fetching profile:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
 
     if (currentUserId) {
-      fetchProfile();
+      fetchData();
     }
   }, [userId, currentUserId]);
 
@@ -117,7 +126,7 @@ const Profile = () => {
             <h1>{userProfile?.name || profile?.name || "Dreamer"}</h1>
             <div className="profile-stats">
               <div className="stat">
-                <span className="stat-value">{profile?.publicDreamCount || 0}</span>
+                <span className="stat-value">{publicDreams.length}</span>
                 <span className="stat-label">Public Dreams</span>
               </div>
             </div>
@@ -230,46 +239,36 @@ const Profile = () => {
           </form>
         ) : (
           <div className="profile-details">
-            <div className="profile-section">
-              <h2>About</h2>
-              <p>{profile?.bio || "No bio yet"}</p>
-            </div>
+            {profile?.bio && <p className="profile-bio">{profile.bio}</p>}
             {profile?.socialLinks && Object.keys(profile.socialLinks).length > 0 && (
-              <div className="profile-section">
-                <h2>Social Links</h2>
-                <div className="social-links">
-                  {profile.socialLinks.website && (
-                    <a
-                      href={profile.socialLinks.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Website
-                    </a>
-                  )}
-                  {profile.socialLinks.twitter && (
-                    <a
-                      href={`https://twitter.com/${profile.socialLinks.twitter}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Twitter
-                    </a>
-                  )}
-                  {profile.socialLinks.instagram && (
-                    <a
-                      href={`https://instagram.com/${profile.socialLinks.instagram}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Instagram
-                    </a>
-                  )}
-                </div>
+              <div className="profile-social-links">
+                {profile.socialLinks.website && (
+                  <a href={profile.socialLinks.website} target="_blank" rel="noopener noreferrer">
+                    🌐 Website
+                  </a>
+                )}
+                {profile.socialLinks.twitter && (
+                  <a href={`https://twitter.com/${profile.socialLinks.twitter}`} target="_blank" rel="noopener noreferrer">
+                    🐦 Twitter
+                  </a>
+                )}
+                {profile.socialLinks.instagram && (
+                  <a href={`https://instagram.com/${profile.socialLinks.instagram}`} target="_blank" rel="noopener noreferrer">
+                    📸 Instagram
+                  </a>
+                )}
               </div>
             )}
           </div>
         )}
+
+        <div className="profile-dreams">
+          <h2>Public Dreams</h2>
+          <MiniGallery dreams={publicDreams} userId={currentUserId} />
+          {publicDreams.length === 0 && (
+            <p className="no-dreams">No public dreams yet</p>
+          )}
+        </div>
       </div>
     </div>
   );

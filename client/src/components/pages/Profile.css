@@ -295,3 +295,64 @@
   font-size: 0.8rem;
   font-family: "Pixelify Sans", monospace;
 }
+
+.profile-dreams {
+  margin-top: 40px;
+  padding: 20px;
+  background: rgba(107, 138, 253, 0.1);
+  border-radius: 12px;
+  border: 2px solid #6b8afd;
+}
+
+.profile-dreams h2 {
+  font-family: "Pixelify Sans", sans-serif;
+  color: #6b8afd;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.dreams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 10px;
+}
+
+.no-dreams {
+  text-align: center;
+  color: #6b8afd;
+  font-family: "Pixelify Sans", sans-serif;
+  font-size: 18px;
+  padding: 40px;
+  grid-column: 1 / -1;
+}
+
+.profile-social-links {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+.profile-social-links a {
+  color: #6b8afd;
+  text-decoration: none;
+  padding: 8px 15px;
+  border: 2px solid #6b8afd;
+  border-radius: 20px;
+  font-family: "Pixelify Sans", sans-serif;
+  transition: all 0.3s ease;
+}
+
+.profile-social-links a:hover {
+  background: #6b8afd;
+  color: white;
+}
+
+.profile-bio {
+  text-align: center;
+  color: #6b8afd;
+  font-family: "Pixelify Sans", sans-serif;
+  margin: 20px 0;
+  line-height: 1.5;
+}

@@ -1,0 +1,197 @@
+.mini-gallery {
+  width: 100%;
+}
+
+.mini-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+  padding: 10px;
+}
+
+.mini-gallery-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.mini-gallery-item:hover {
+  transform: scale(1.05);
+}
+
+.mini-dream-preview {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: rgba(107, 138, 253, 0.1);
+  border: 2px solid #6b8afd;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.mini-dream-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mini-dream-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mini-gallery-item:hover .mini-dream-overlay {
+  opacity: 1;
+}
+
+.mini-dream-text {
+  color: white;
+  font-family: "Pixelify Sans", sans-serif;
+  font-size: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-dream-date {
+  color: white;
+  font-family: "Pixelify Sans", sans-serif;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.mini-dream-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.mini-dream-tag {
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-family: "Pixelify Sans", sans-serif;
+  font-size: 12px;
+  color: white;
+  white-space: nowrap;
+}
+
+.mini-dream-text-only {
+  padding: 12px;
+  color: #6b8afd;
+  font-family: "Pixelify Sans", sans-serif;
+  font-size: 14px;
+  height: calc(100% - 30px);
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.no-image {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Modal styles */
+.dream-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dream-modal {
+  background: #1a1a2e;
+  border-radius: 12px;
+  max-width: 90%;
+  max-height: 90vh;
+  width: 600px;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid #6b8afd;
+}
+
+.dream-modal-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+}
+
+.dream-modal-content {
+  padding: 20px;
+}
+
+.dream-modal-text {
+  color: white;
+  font-family: "Pixelify Sans", sans-serif;
+  font-size: 16px;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+.dream-modal-date {
+  color: #6b8afd;
+  font-family: "Pixelify Sans", sans-serif;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.dream-modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dream-modal-tag {
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-family: "Pixelify Sans", sans-serif;
+  font-size: 14px;
+  color: white;
+}
+
+.dream-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  transition: background 0.3s ease;
+}
+
+.dream-modal-close:hover {
+  background: rgba(0, 0, 0, 0.8);
+}

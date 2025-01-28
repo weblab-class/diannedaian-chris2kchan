@@ -282,6 +282,21 @@ router.get("/dreams/:userId", (req, res) => {
     });
 });
 
+// Get user's public dreams
+router.get("/dreams/public/:userId", async (req, res) => {
+  try {
+    const dreams = await Dream.find({ 
+      userId: req.params.userId,
+      public: true 
+    }).sort({ date: -1 });
+    
+    res.json(dreams);
+  } catch (error) {
+    console.error("Error fetching public dreams:", error);
+    res.status(500).json({ error: "Failed to fetch public dreams" });
+  }
+});
+
 // Toggle dream privacy
 router.post("/toggle-dream-privacy/:dreamId", auth.ensureLoggedIn, async (req, res) => {
   try {
