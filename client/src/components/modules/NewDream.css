@@ -78,22 +78,22 @@
 
 .NewDream-image-area {
   position: absolute;
-  top: 21.5%;
+  top: 10%;
   left: 10%;
-  width: 75%;
-  aspect-ratio: 3/2;
+  width: 80%;
+  aspect-ratio: 1/1;
   border: 1px solid #ccc;
   border-radius: 4px;
   display: flex;
   justify-content: center;
   align-items: center;
   background: transparent;
-  color: #5F80E0;
+  color: #5f80e0;
   font-family: "Pixelify Sans", sans-serif;
 }
 
 .NewDream-image-placeholder {
-  color: #5F80E0;
+  color: #5f80e0;
   text-align: center;
   padding: 20px;
   font-family: "Pixelify Sans", sans-serif;
@@ -103,7 +103,7 @@
 .NewDream-generated-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 4px;
   opacity: 1;
 }
@@ -146,24 +146,25 @@
 
 .NewDream-tags {
   position: absolute;
-  top: 7%;
+  top: 8%;
   left: 1%;
-  width: 60%;
+  width: 50%;
+  z-index: 1;
 }
 
 .NewDream-tags input {
-  border: 2px solid #5F80E0 !important;
+  border: 2px solid #5f80e0 !important;
   border-radius: 4px !important;
   font-family: "Pixelify Sans", sans-serif !important;
   font-size: 16px !important;
-  color: #5F80E0 !important;
+  color: #5f80e0 !important;
   background: transparent !important;
   padding: 8px !important;
   width: 100% !important;
 }
 
 .NewDream-tags input::placeholder {
-  color: #5F80E0 !important;
+  color: #5f80e0 !important;
   opacity: 0.7 !important;
 }
 
@@ -172,8 +173,8 @@
   top: -1%;
   right: 15%;
   width: 25%;
-  background:transparent;
-  border:none;
+  background: transparent;
+  border: none;
 }
 
 .NewDream-save-button img {
@@ -221,7 +222,7 @@
   border-radius: 24px;
   transition: 0.4s;
   cursor: pointer;
-  border: 2px solid #5F80E0;
+  border: 2px solid #5f80e0;
 }
 
 .NewDream-toggle-slider:before {
@@ -231,7 +232,7 @@
   width: 16px;
   left: 2px;
   bottom: 2px;
-  background-color: #5F80E0;
+  background-color: #5f80e0;
   border-radius: 50%;
   transition: 0.4s;
 }
@@ -245,7 +246,7 @@
 }
 
 .NewDream-toggle-label {
-  color: #5F80E0;
+  color: #5f80e0;
   font-size: 16px;
   font-family: "Pixelify Sans", sans-serif;
 }
@@ -270,30 +271,30 @@
   min-height: 100%;
   max-height: 100%;
   padding: 0;
-  border: 2px dashed #5F80E0;
+  border: 2px dashed #5f80e0;
   border-radius: 4px;
   background: transparent;
   resize: none;
   font-family: "Pixelify Sans", sans-serif;
   font-size: 16px;
-  color: #5F80E0;
+  color: #5f80e0;
   line-height: 3;
   background-image: repeating-linear-gradient(
     transparent,
     transparent calc(3em - 1px),
-    #5F80E0 calc(3em - 1px),
-    #5F80E0 3em
+    #5f80e0 calc(3em - 1px),
+    #5f80e0 3em
   );
   background-size: 100% 3em;
 }
 
 .NewDream-input:focus {
   outline: none;
-  border: 2px dashed #5F80E0;
+  border: 2px dashed #5f80e0;
 }
 
 .NewDream-input::placeholder {
-  color: #5F80E0;
+  color: #5f80e0;
   opacity: 0.7;
 }
 
@@ -324,7 +325,7 @@
 }
 
 .NewDream-button {
-  background-color: #5F80E0;
+  background-color: #5f80e0;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -348,7 +349,7 @@
   text-align: center;
   padding: 40px;
   font-family: "Pixelify Sans", monospace;
-  color: #5F80E0;
+  color: #5f80e0;
   font-size: 1.5rem;
 }
 
@@ -408,7 +409,7 @@
 }
 
 .react-datepicker__day--today {
-  color: #FF4444 !important;
+  color: #ff4444 !important;
   font-weight: bold !important;
 }
 

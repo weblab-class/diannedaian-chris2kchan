@@ -17,11 +17,11 @@ const NewDream = ({ onNewDream, onClose }) => {
 
   useEffect(() => {
     // Disable scrolling on mount
-    document.body.style.overflow = 'hidden';
-    
+    document.body.style.overflow = "hidden";
+
     // Re-enable scrolling on unmount
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, []);
 
@@ -53,10 +53,10 @@ const NewDream = ({ onNewDream, onClose }) => {
       }
 
       // Format tags to match database schema
-      const formattedTags = selectedTags.map(tag => ({
+      const formattedTags = selectedTags.map((tag) => ({
         id: tag.id,
         text: tag.text,
-        color: tag.color
+        color: tag.color,
       }));
 
       const dreamData = {
@@ -81,7 +81,7 @@ const NewDream = ({ onNewDream, onClose }) => {
       console.error("Error details:", {
         message: error.message,
         response: error.response,
-        data: error.response?.data
+        data: error.response?.data,
       });
       alert("Failed to save dream. Please try again.");
     } finally {
@@ -101,26 +101,32 @@ const NewDream = ({ onNewDream, onClose }) => {
 
   return (
     <div className="NewDream-overlay" onClick={handleOverlayClick}>
-      <div className="NewDream-popup">
-        <img src="/assets/postcard.png" alt="Dream Card" className="NewDream-card-background" />
-        <form onSubmit={handleSubmit} className="NewDream-form">
+      <div className="NewDream-popup" onClick={(e) => e.stopPropagation()}>
+        <img src="/assets/postcard.png" className="NewDream-card-background" alt="Dream Card" />
+        <form className="NewDream-form" onSubmit={handleSubmit}>
           <div className="NewDream-left-side">
             <div className="NewDream-date">
               <DatePicker
                 selected={selectedDate}
-                onChange={date => setSelectedDate(date)}
+                onChange={(date) => setSelectedDate(date)}
                 dateFormat="MMMM d, yyyy"
                 className="NewDream-date-input"
                 placeholderText="Select date..."
               />
             </div>
-            
+
             <div className="NewDream-image-area">
               {generatedImage ? (
-                <img src={generatedImage} alt="Generated Dream" className="NewDream-generated-image" />
+                <img
+                  src={generatedImage}
+                  alt="Generated dream visualization"
+                  className="NewDream-generated-image"
+                />
               ) : (
                 <div className="NewDream-image-placeholder">
-                  {isGeneratingImage ? "Generating..." : "AI Image will appear here"}
+                  {isGeneratingImage
+                    ? "Generating..."
+                    : "Your dream visualization will appear here"}
                 </div>
               )}
             </div>
@@ -129,9 +135,13 @@ const NewDream = ({ onNewDream, onClose }) => {
               <button
                 type="button"
                 onClick={handleGenerateImage}
-                disabled={!dreamText.trim() || isGeneratingImage || generatedImage}
+                disabled={isGeneratingImage || !dreamText.trim()}
               >
-                <img src="/assets/generatedreambutton.png" alt="Generate Dream" />
+                <img
+                  src="/assets/generatedreambutton.png"
+                  alt="Generate"
+                  style={{ opacity: isGeneratingImage || !dreamText.trim() ? 0.5 : 1 }}
+                />
               </button>
             </div>
           </div>

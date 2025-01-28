@@ -79,6 +79,13 @@
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
+  opacity: 1;
+  transition: opacity 0.2s ease-in;
+}
+
+.mini-gallery-item:hover .mini-dream-tags {
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
 }
 
 .mini-dream-tag {

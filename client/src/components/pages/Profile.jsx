@@ -16,38 +16,31 @@ const Profile = () => {
   const [editForm, setEditForm] = useState({
     name: "",
     bio: "",
-    socialLinks: {
-      website: "",
-      twitter: "",
-      instagram: "",
-    },
-    preferences: {
-      emailNotifications: true,
-      displayFullName: true,
-    },
+    picture: null,
   });
 
   // Fetch profile data and public dreams
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [profileResponse, dreamsResponse] = await Promise.all([
+        const [profileResponse, publicDreamsResponse, totalDreamsResponse] = await Promise.all([
           fetch(`/api/profile/${userId || currentUserId}`, {
             credentials: "include",
           }),
-          fetch(`/api/dreams/public/${userId || currentUserId}`)
+          fetch(`/api/dreams/public/${userId || currentUserId}`),
+          fetch(`/api/dreams/count/${userId || currentUserId}`),
         ]);
 
         const profileData = await profileResponse.json();
-        const dreamsData = await dreamsResponse.json();
+        const dreamsData = await publicDreamsResponse.json();
+        const totalDreamsData = await totalDreamsResponse.json();
 
-        setProfile(profileData);
+        setProfile({ ...profileData, totalDreams: totalDreamsData.count });
         setPublicDreams(dreamsData);
         setEditForm({
           name: profileData.name || "",
           bio: profileData.bio || "",
-          socialLinks: profileData.socialLinks || {},
-          preferences: profileData.preferences || {},
+          picture: profileData.picture || null,
         });
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -70,7 +63,11 @@ const Profile = () => {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify(editForm),
+        body: JSON.stringify({
+          name: editForm.name,
+          bio: editForm.bio,
+          picture: editForm.picture,
+        }),
       });
 
       if (!response.ok) {
@@ -84,8 +81,7 @@ const Profile = () => {
         ...prev,
         name: updatedProfile.name,
         bio: updatedProfile.bio,
-        socialLinks: updatedProfile.socialLinks,
-        preferences: updatedProfile.preferences,
+        picture: updatedProfile.picture,
       }));
 
       alert("Profile updated successfully!");
@@ -94,6 +90,52 @@ const Profile = () => {
       alert("Failed to update profile. Please try again.");
     }
   };
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const response = await fetch("/api/upload-profile-picture", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload image");
+      }
+
+      const data = await response.json();
+      console.log("Upload response:", data);
+
+      // Update both the edit form and profile state
+      setEditForm((prev) => ({ ...prev, picture: data.imageUrl }));
+      setProfile((prev) => ({ ...prev, picture: data.imageUrl }));
+
+      // Update the user profile context as well
+      setUserProfile((prev) => ({
+        ...prev,
+        picture: data.imageUrl,
+      }));
+    } catch (error) {
+      console.error("Error uploading profile picture:", error);
+      alert("Failed to upload profile picture. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    if (isEditing && profile) {
+      setEditForm({
+        name: profile.name || "",
+        bio: profile.bio || "",
+        picture: profile.picture || "",
+      });
+    }
+  }, [isEditing, profile]);
 
   if (!currentUserId) {
     navigate("/");
@@ -113,162 +155,89 @@ const Profile = () => {
         <h1>Profile</h1>
       </div>
 
-      <div className="profile-content">
-        <div className="profile-header">
-          <div className="profile-avatar-container">
-            <img
-              src="/assets/profilepic.png"
-              alt="Profile"
-              className="profile-avatar"
-            />
-          </div>
-          <div className="profile-info">
-            <h1>{userProfile?.name || profile?.name || "Dreamer"}</h1>
-            <div className="profile-stats">
-              <div className="stat">
-                <span className="stat-value">{publicDreams.length}</span>
-                <span className="stat-label">Public Dreams</span>
-              </div>
-            </div>
-          </div>
-          {isOwnProfile && (
-            <button
-              className="edit-profile-button"
-              onClick={() => setIsEditing(!isEditing)}
-            >
-              {isEditing ? "Cancel" : "Edit Profile"}
-            </button>
-          )}
-        </div>
-
-        {isEditing ? (
-          <form onSubmit={handleSubmit} className="profile-edit-form">
-            <div className="form-group">
-              <label>Name</label>
-              <input
-                type="text"
-                value={editForm.name}
-                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                placeholder="Your name"
+      {isEditing ? (
+        <form onSubmit={handleSubmit} className="profile-edit-form">
+          <div className="edit-form-content">
+            <div className="profile-picture-upload">
+              <img
+                src={editForm.picture || profile?.picture || "/assets/profilepic.png"}
+                alt="Profile"
+                className="profile-avatar"
               />
-            </div>
-            <div className="form-group">
-              <label>Bio</label>
-              <textarea
-                value={editForm.bio}
-                onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
-                placeholder="Tell us about yourself"
-              />
-            </div>
-            <div className="form-group">
-              <label>Social Links</label>
-              <input
-                type="url"
-                value={editForm.socialLinks.website || ""}
-                onChange={(e) =>
-                  setEditForm({
-                    ...editForm,
-                    socialLinks: { ...editForm.socialLinks, website: e.target.value },
-                  })
-                }
-                placeholder="Website URL"
-              />
-              <input
-                type="text"
-                value={editForm.socialLinks.twitter || ""}
-                onChange={(e) =>
-                  setEditForm({
-                    ...editForm,
-                    socialLinks: { ...editForm.socialLinks, twitter: e.target.value },
-                  })
-                }
-                placeholder="Twitter username"
-              />
-              <input
-                type="text"
-                value={editForm.socialLinks.instagram || ""}
-                onChange={(e) =>
-                  setEditForm({
-                    ...editForm,
-                    socialLinks: { ...editForm.socialLinks, instagram: e.target.value },
-                  })
-                }
-                placeholder="Instagram username"
-              />
-            </div>
-            <div className="form-group">
-              <label>Preferences</label>
-              <div className="checkbox-group">
-                <label>
+              <div className="upload-overlay">
+                <label htmlFor="picture-upload" className="upload-button">
+                  Change Picture
                   <input
-                    type="checkbox"
-                    checked={editForm.preferences.emailNotifications}
-                    onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        preferences: {
-                          ...editForm.preferences,
-                          emailNotifications: e.target.checked,
-                        },
-                      })
-                    }
+                    id="picture-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    style={{ display: "none" }}
                   />
-                  Receive email notifications
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={editForm.preferences.displayFullName}
-                    onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        preferences: {
-                          ...editForm.preferences,
-                          displayFullName: e.target.checked,
-                        },
-                      })
-                    }
-                  />
-                  Display full name
                 </label>
               </div>
             </div>
-            <button type="submit" className="save-profile-button">
-              Save Profile
-            </button>
-          </form>
-        ) : (
-          <div className="profile-details">
-            {profile?.bio && <p className="profile-bio">{profile.bio}</p>}
-            {profile?.socialLinks && Object.keys(profile.socialLinks).length > 0 && (
-              <div className="profile-social-links">
-                {profile.socialLinks.website && (
-                  <a href={profile.socialLinks.website} target="_blank" rel="noopener noreferrer">
-                    🌐 Website
-                  </a>
-                )}
-                {profile.socialLinks.twitter && (
-                  <a href={`https://twitter.com/${profile.socialLinks.twitter}`} target="_blank" rel="noopener noreferrer">
-                    🐦 Twitter
-                  </a>
-                )}
-                {profile.socialLinks.instagram && (
-                  <a href={`https://instagram.com/${profile.socialLinks.instagram}`} target="_blank" rel="noopener noreferrer">
-                    📸 Instagram
-                  </a>
-                )}
+            <div className="edit-form-fields">
+              <div className="form-group">
+                <label>Name</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  placeholder="Your name"
+                />
               </div>
+              <div className="form-group">
+                <label>Bio</label>
+                <textarea
+                  value={editForm.bio}
+                  onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                  placeholder="Tell us about yourself"
+                />
+              </div>
+              <button type="submit" className="save-profile-button">
+                Save Profile
+              </button>
+            </div>
+          </div>
+        </form>
+      ) : (
+        <div className="profile-content">
+          <div className="profile-header">
+            <div className="profile-avatar-container">
+              <img
+                src={profile?.picture || "/assets/profilepic.png"}
+                alt="Profile"
+                className="profile-avatar"
+              />
+            </div>
+            <div className="profile-info">
+              <h1>{userProfile?.name || profile?.name || "Dreamer"}</h1>
+              <p className="profile-bio">{profile?.bio || "No bio yet..."}</p>
+              <div className="profile-stats">
+                <div className="stat">
+                  <span className="stat-value">{publicDreams.length}</span>
+                  <span className="stat-label">Public Dreams</span>
+                </div>
+                <div className="stat">
+                  <span className="stat-value">{profile?.totalDreams || 0}</span>
+                  <span className="stat-label">Total Dreams</span>
+                </div>
+              </div>
+            </div>
+            {isOwnProfile && (
+              <button className="edit-profile-button" onClick={() => setIsEditing(!isEditing)}>
+                {isEditing ? "Cancel" : "Edit Profile"}
+              </button>
             )}
           </div>
-        )}
-
-        <div className="profile-dreams">
-          <h2>Public Dreams</h2>
-          <MiniGallery dreams={publicDreams} userId={currentUserId} />
-          {publicDreams.length === 0 && (
-            <p className="no-dreams">No public dreams yet</p>
-          )}
         </div>
+      )}
+
+      <div className="profile-dreams">
+        <h2>Public Dreams</h2>
+        <MiniGallery dreams={publicDreams} userId={currentUserId} />
+        {publicDreams.length === 0 && <p className="no-dreams">No public dreams yet</p>}
       </div>
     </div>
   );

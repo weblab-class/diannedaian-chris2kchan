@@ -13,15 +13,17 @@
 }
 
 .PublicPost-container {
+  position: relative;
   width: 90vw;
   max-width: 1200px;
   aspect-ratio: 1.8/1;
   background-image: url("/assets/publicpost.png");
-  background-size: 100% 100%;
+  background-size: contain;
+  background-position: center;
   background-repeat: no-repeat;
-  position: relative;
   margin: auto;
   transform: translate(-2.5%, 5%);
+  font-size: calc(0.8vw + 4px); /* Base font size that scales with viewport */
 }
 
 .PublicPost-image {
@@ -38,11 +40,11 @@
   right: 2%;
   top: 6%;
   width: 21.5%;
+  height: 15%;
   color: black;
   background: rgba(255, 255, 255, 0.5);
-  padding: 15px;
-  border-radius: 8px;
-  height: 15%;
+  padding: 1.25%;
+  border-radius: 0.67%;
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-width: thin;
@@ -54,9 +56,9 @@
 .PublicPost-text {
   margin: 0;
   font-family: "Pixelify Sans", monospace;
-  font-size: 14px;
+  font-size: 1em;
   line-height: 1.4;
-  padding-right: 8px;
+  padding-right: 0.67%;
   width: 100%;
   word-wrap: break-word;
 }
@@ -67,10 +69,10 @@
   top: 25.3%;
   width: 22.4%;
   height: 3%;
-  padding: 10px;
-  border-radius: 20px;
+  padding: 0.83%;
+  border-radius: 1.67%;
   display: flex;
-  gap: 8px;
+  gap: 0.67%;
   flex-wrap: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
@@ -80,17 +82,17 @@
 }
 
 .PublicPost-tags::-webkit-scrollbar {
-  height: 8px;
+  height: 0.67%;
 }
 
 .PublicPost-tags::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  border-radius: 0.33%;
 }
 
 .PublicPost-tags::-webkit-scrollbar-thumb {
   background: rgba(139, 122, 184, 0.5);
-  border-radius: 4px;
+  border-radius: 0.33%;
 }
 
 .PublicPost-tags::-webkit-scrollbar-thumb:hover {
@@ -102,7 +104,7 @@
   border-radius: 15px;
   color: white;
   font-family: "Pixelify Sans", monospace;
-  font-size: 12px;
+  font-size: 0.9em;
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -113,26 +115,26 @@
   bottom: 12%;
   display: flex;
   align-items: center;
-  gap: 0.5vw;
-  padding: 1.2vw;
-  border-radius: 2vw;
+  gap: 0.67%;
+  padding: 1%;
+  border-radius: 1.67%;
   cursor: pointer;
   z-index: 2;
 }
 
 .PublicPost-profile-pic {
-  width: 6vw;
-  height: 6vw;
+  width: 2em;
+  height: 2em;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .PublicPost-username {
   font-family: "Pixelify Sans", monospace;
-  font-size: 3.3vw;
+  font-size: 1em;
   color: black;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  margin-left: -0.3vw;
+  text-shadow: 0.17% 0.17% 0.33% rgba(0, 0, 0, 0.5);
+  margin-left: -0.25%;
 }
 
 .PublicPost-stamp {
@@ -151,9 +153,9 @@
   bottom: 10%;
   width: 20.5%;
   height: 49%;
-  padding: 1.5vw;
+  padding: 1.25%;
   background: rgba(255, 255, 255, 0.5);
-  border-radius: 1.2vw;
+  border-radius: 1%;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(139, 122, 184, 0.5) rgba(255, 255, 255, 0.1);
@@ -165,16 +167,17 @@
   border-radius: 8px;
   margin-bottom: 8px;
   font-family: "Pixelify Sans", monospace;
+  font-size: 1em;
 }
 
 .PublicPost-comment-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 0.67%;
+  margin-bottom: 0.67%;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 20px;
+  padding: 0.33%;
+  border-radius: 1.67%;
   transition: background-color 0.2s;
 }
 
@@ -183,14 +186,14 @@
 }
 
 .PublicPost-comment-pic {
-  width: 24px;
-  height: 24px;
+  width: 1.5em;
+  height: 1.5em;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .PublicPost-comment-username {
-  font-size: 0.9rem;
+  font-size: 0.9em;
   font-weight: bold;
   font-family: "Pixelify Sans", monospace;
   color: #bf9ae8;
@@ -201,24 +204,24 @@
 }
 
 .PublicPost-comment-date {
-  font-size: 0.8rem;
+  font-size: 0.8em;
   color: #666;
   margin-left: auto;
 }
 
 .PublicPost-comment-content {
   color: #333;
-  margin-top: 5px;
-  font-size: 14px;
+  margin-top: 0.42%;
+  font-size: 1em;
 }
 
 .PublicPost-comment-form {
   display: flex;
-  gap: 8px;
-  padding: 8px;
+  gap: 0.67%;
+  padding: 0.67%;
   background: rgba(255, 255, 255, 0.7);
-  border-radius: 8px;
-  margin-top: 10px;
+  border-radius: 0.67%;
+  margin-top: 0.83%;
   align-items: center;
 }
 
@@ -228,7 +231,7 @@
   border: 2px solid #8b7ab8;
   border-radius: 20px;
   font-family: "Pixelify Sans", monospace;
-  font-size: 12px;
+  font-size: 0.9em;
   background: rgba(255, 255, 255, 0.9);
   color: #333;
   transition: border-color 0.2s;
@@ -243,23 +246,22 @@
   border-radius: 20px;
   color: white;
   font-family: "Pixelify Sans", monospace;
-  font-size: 12px;
+  font-size: 0.9em;
   cursor: pointer;
   transition: background-color 0.2s;
   height: 24px;
   white-space: nowrap;
   display: flex;
   align-items: center;
-  justify-content: center;
 }
 
 .PublicPost-close {
   position: absolute;
-  right: 20px;
-  top: 20px;
+  right: 1.67%;
+  top: 1.67%;
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: 2em;
   cursor: pointer;
   color: #333;
   z-index: 2;
@@ -270,8 +272,9 @@
   text-align: center;
   color: #666;
   font-style: italic;
-  padding: 20px 0;
+  padding: 1.67% 0;
   font-family: "Pixelify Sans", monospace;
+  font-size: 1em;
 }
 
 .PublicPost-nav-arrow {
@@ -298,66 +301,23 @@
 }
 
 .PublicPost-nav-arrow img {
-  width: 5vw;
+  width: 2em;
   height: auto;
-}
-
-/* Media query for mobile devices */
-@media (max-width: 768px) {
-  .PublicPost-container {
-    width: 100%;
-    height: 90vh;
-  }
-
-  .PublicPost-image {
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80%;
-    height: 80%;
-  }
-
-  .PublicPost-text-container {
-    position: relative;
-    width: 100%;
-    height: auto;
-    padding: 20px;
-  }
-
-  .PublicPost-tags {
-    position: relative;
-    width: 100%;
-    height: auto;
-    padding: 20px;
-  }
-
-  .PublicPost-profile-section {
-    position: relative;
-    width: 100%;
-    height: auto;
-    padding: 20px;
-  }
-
-  .PublicPost-comments {
-    position: relative;
-    width: 100%;
-    height: auto;
-    padding: 20px;
-  }
 }
 
 /* Scrollbar Styling */
 .PublicPost-comments::-webkit-scrollbar {
-  width: 4px;
+  width: 0.33%;
 }
 
 .PublicPost-comments::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  border-radius: 0.17%;
 }
 
 .PublicPost-comments::-webkit-scrollbar-thumb {
   background: rgba(139, 122, 184, 0.5);
-  border-radius: 2px;
+  border-radius: 0.17%;
 }
 
 .PublicPost-comments::-webkit-scrollbar-thumb:hover {
@@ -365,17 +325,17 @@
 }
 
 .PublicPost-text-container::-webkit-scrollbar {
-  width: 8px;
+  width: 0.67%;
 }
 
 .PublicPost-text-container::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  border-radius: 0.33%;
 }
 
 .PublicPost-text-container::-webkit-scrollbar-thumb {
   background: rgba(139, 122, 184, 0.5);
-  border-radius: 4px;
+  border-radius: 0.33%;
 }
 
 .PublicPost-text-container::-webkit-scrollbar-thumb:hover {

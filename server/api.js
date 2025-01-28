@@ -9,17 +9,37 @@
 
 const express = require("express");
 const auth = require("./auth");
-const Dream = require("./models/dream");
+const socketManager = require("./server-socket");
 const Profile = require("./models/profile");
-const Comment = require("./models/comment"); // Import the Comment model
-
-// import the OpenAI API
+const Dream = require("./models/dream");
+const Comment = require("./models/comment");
 const OpenAI = require("openai");
-
-const axios = require("axios");
+const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
+
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Configure multer for file uploads
+const upload = multer({
+  dest: uploadDir,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Accept only image files
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  },
+});
 
 // Initialize OpenAI client
 if (!process.env.OPENAI_API_KEY) {
@@ -27,7 +47,7 @@ if (!process.env.OPENAI_API_KEY) {
 }
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 const router = express.Router();
@@ -35,8 +55,8 @@ const router = express.Router();
 // import models so we can interact with the database
 const User = require("./models/user");
 
-//initialize socket
-const socketManager = require("./server-socket");
+// import the OpenAI API
+const axios = require("axios");
 
 //Import Cloudinary upload routes
 const cloudinaryUpload = require("./cloudinaryUpload");
@@ -68,20 +88,20 @@ router.post("/initsocket", (req, res) => {
 router.post("/generate-dream-image", async (req, res) => {
   try {
     const { prompt } = req.body;
-    
+
     if (!prompt) {
       return res.status(400).json({ error: "No prompt provided" });
     }
 
     console.log("🎨 Generating image with prompt:", prompt);
-    
+
     // Generate image using OpenAI
     const response = await openai.images.generate({
       model: "dall-e-2",
       prompt: prompt,
       n: 1,
       size: "1024x1024",
-      response_format: "url"
+      response_format: "url",
     });
 
     if (!response.data || response.data.length === 0) {
@@ -98,16 +118,15 @@ router.post("/generate-dream-image", async (req, res) => {
       resource_type: "image",
       type: "upload",
       access_mode: "public",
-      secure: true
+      secure: true,
     });
 
     console.log("✅ Uploaded to Cloudinary:", uploadResponse.secure_url);
 
-    res.json({ 
+    res.json({
       imageUrl: uploadResponse.secure_url,
-      public_id: uploadResponse.public_id
+      public_id: uploadResponse.public_id,
     });
-
   } catch (error) {
     console.error("Error generating/uploading image:", error);
     res.status(500).json({ error: error.message });
@@ -118,14 +137,14 @@ router.post("/generate-dream-image", async (req, res) => {
 router.post("/dreams", auth.ensureLoggedIn, async (req, res) => {
   try {
     console.log("Received dream data:", req.body);
-    
+
     // Get user's profile
     const userId = req.user.googleid;
     console.log("Looking up profile for userId:", userId);
-    
+
     const profile = await Profile.findOne({ userId });
     console.log("Found profile:", profile);
-    
+
     const newDream = new Dream({
       userId: userId,
       text: req.body.text,
@@ -135,8 +154,8 @@ router.post("/dreams", auth.ensureLoggedIn, async (req, res) => {
       tags: req.body.tags,
       userProfile: {
         name: profile?.name || "Dreamer",
-        picture: "/assets/profilepic.png"
-      }
+        picture: "/assets/profilepic.png",
+      },
     });
 
     console.log("Created new dream object:", newDream);
@@ -161,7 +180,7 @@ router.post("/dreams", auth.ensureLoggedIn, async (req, res) => {
       name: err.name,
       message: err.message,
       stack: err.stack,
-      body: req.body
+      body: req.body,
     });
     res.status(500).json({ error: err.message });
   }
@@ -184,7 +203,7 @@ router.post("/dreams/update", auth.ensureLoggedIn, async (req, res) => {
       console.log("Dream not found with id:", req.body._id);
       return res.status(404).send({ error: "Dream not found" });
     }
-    
+
     console.log("Found dream:", dream);
     console.log("Dream userId:", dream.userId);
     console.log("User googleid:", req.user.googleid);
@@ -207,7 +226,7 @@ router.post("/dreams/update", auth.ensureLoggedIn, async (req, res) => {
       date: dream.date,
       tags: dream.tags,
       public: dream.public,
-      imageUrl: dream.imageUrl
+      imageUrl: dream.imageUrl,
     });
 
     await dream.save();
@@ -222,9 +241,8 @@ router.post("/dreams/update", auth.ensureLoggedIn, async (req, res) => {
 // Get user's private dreams feed (includes both public and private dreams)
 router.get("/get-user-dreams/:userId", auth.ensureLoggedIn, async (req, res) => {
   try {
-    const dreams = await Dream.find({ userId: req.params.userId })
-      .sort({ date: -1 }); // Sort by date descending
-    
+    const dreams = await Dream.find({ userId: req.params.userId }).sort({ date: -1 }); // Sort by date descending
+
     res.json(dreams);
   } catch (error) {
     console.error("Error fetching user dreams:", error);
@@ -239,29 +257,29 @@ router.get("/public-dreams", async (req, res) => {
     const dreams = await Dream.find({ public: true })
       .sort({ date: -1 }) // Sort by date descending (newest first)
       .limit(100); // Limit to 100 dreams for performance
-    
+
     console.log(`Found ${dreams.length} public dreams`);
-    
+
     // Get user profiles for all dream creators
     const userProfiles = await Promise.all(
       dreams.map(async (dream) => {
         const profile = await Profile.findOne({ userId: dream.userId });
         return {
           dreamId: dream._id,
-          profile: profile || { name: "Anonymous Dreamer", picture: "/assets/profilepic.png" }
+          profile: profile || { name: "Anonymous Dreamer", picture: "/assets/profilepic.png" },
         };
       })
     );
 
     // Combine dreams with their creator's profile
-    const dreamsWithProfiles = dreams.map(dream => {
-      const userProfile = userProfiles.find(p => p.dreamId.equals(dream._id));
+    const dreamsWithProfiles = dreams.map((dream) => {
+      const userProfile = userProfiles.find((p) => p.dreamId.equals(dream._id));
       return {
         ...dream.toObject(),
-        userProfile: userProfile.profile
+        userProfile: userProfile.profile,
       };
     });
-    
+
     console.log("Sending dreams with profiles:", dreamsWithProfiles);
     res.json(dreamsWithProfiles);
   } catch (error) {
@@ -285,11 +303,11 @@ router.get("/dreams/:userId", (req, res) => {
 // Get user's public dreams
 router.get("/dreams/public/:userId", async (req, res) => {
   try {
-    const dreams = await Dream.find({ 
+    const dreams = await Dream.find({
       userId: req.params.userId,
-      public: true 
+      public: true,
     }).sort({ date: -1 });
-    
+
     res.json(dreams);
   } catch (error) {
     console.error("Error fetching public dreams:", error);
@@ -301,7 +319,7 @@ router.get("/dreams/public/:userId", async (req, res) => {
 router.post("/toggle-dream-privacy/:dreamId", auth.ensureLoggedIn, async (req, res) => {
   try {
     const dream = await Dream.findById(req.params.dreamId);
-    
+
     if (!dream) {
       return res.status(404).json({ error: "Dream not found" });
     }
@@ -313,15 +331,15 @@ router.post("/toggle-dream-privacy/:dreamId", auth.ensureLoggedIn, async (req, r
 
     // Get user's profile for updating the userProfile field
     const profile = await Profile.findOne({ userId: req.user.googleid });
-    
+
     dream.public = !dream.public;
     if (dream.public) {
       dream.userProfile = {
         name: profile?.name || "Dreamer",
-        picture: "/assets/profilepic.png"
+        picture: "/assets/profilepic.png",
       };
     }
-    
+
     await dream.save();
 
     // Update profile public dream count
@@ -341,37 +359,41 @@ router.post("/toggle-dream-privacy/:dreamId", auth.ensureLoggedIn, async (req, r
   }
 });
 
-// Create or update profile
+// Update user profile
 router.post("/profile", auth.ensureLoggedIn, async (req, res) => {
   try {
-    const { name, bio, socialLinks, preferences } = req.body;
-    const userId = req.user.googleid;  // Get userId from authenticated user
+    const { name, bio, picture } = req.body;
+    const userId = req.user.googleid; // Get userId from authenticated user
 
     if (!userId) {
       return res.status(400).json({ error: "Not authenticated" });
     }
 
     let profile = await Profile.findOne({ userId });
-    
+
     if (!profile) {
       // Create new profile
       profile = new Profile({ userId });
     }
 
-    // Update fields if provided
-    if (name !== undefined) profile.name = name;
-    if (bio !== undefined) profile.bio = bio;
-    if (socialLinks) profile.socialLinks = { ...profile.socialLinks, ...socialLinks };
-    if (preferences) profile.preferences = { ...profile.preferences, ...preferences };
+    // Update profile fields
+    if (name) profile.name = name;
+    if (bio) profile.bio = bio;
+    if (picture) profile.picture = picture;
 
-    profile.lastActive = new Date();
     await profile.save();
 
-    // Send back the updated profile
-    res.json(profile);
-  } catch (error) {
-    console.error("Error updating profile:", error);
-    res.status(500).json({ error: "Failed to update profile" });
+    // Send back the complete profile
+    res.json({
+      userId: profile.userId,
+      name: profile.name,
+      bio: profile.bio,
+      picture: profile.picture,
+      totalDreams: profile.totalDreams,
+    });
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    res.status(500).json({ error: "Could not update profile" });
   }
 });
 
@@ -379,7 +401,7 @@ router.post("/profile", auth.ensureLoggedIn, async (req, res) => {
 router.get("/profile/:userId", async (req, res) => {
   try {
     let profile = await Profile.findOne({ userId: req.params.userId });
-    
+
     if (!profile) {
       // Create default profile if it doesn't exist
       profile = new Profile({ userId: req.params.userId });
@@ -429,6 +451,67 @@ router.post("/profile/avatar", async (req, res) => {
   }
 });
 
+// Upload profile picture
+router.post(
+  "/upload-profile-picture",
+  auth.ensureLoggedIn,
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No image file provided" });
+      }
+
+      console.log("Received file:", req.file);
+
+      // Configure cloudinary
+      const cloudinary = require("cloudinary").v2;
+      cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+      });
+
+      // Upload to Cloudinary
+      const uploadResponse = await cloudinary.uploader.upload(req.file.path, {
+        folder: "profile-pictures",
+        resource_type: "image",
+        type: "upload",
+        access_mode: "public",
+        secure: true,
+      });
+
+      console.log("Cloudinary upload response:", uploadResponse);
+
+      // Clean up the temporary file
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.error("Error deleting temp file:", err);
+      });
+
+      // Update user's profile with new picture URL
+      const profile = await Profile.findOne({ userId: req.user.googleid });
+      if (profile) {
+        profile.picture = uploadResponse.secure_url;
+        await profile.save();
+      }
+
+      res.json({
+        imageUrl: uploadResponse.secure_url,
+        public_id: uploadResponse.public_id,
+      });
+    } catch (error) {
+      console.error("Error uploading profile picture:", error);
+      // Clean up the temporary file in case of error
+      if (req.file) {
+        fs.unlink(req.file.path, (err) => {
+          if (err) console.error("Error deleting temp file:", err);
+        });
+      }
+      res.status(500).json({ error: "Failed to upload profile picture" });
+    }
+  }
+);
+
 // Comment endpoints
 router.get("/comments/:dreamId", async (req, res) => {
   try {
@@ -459,12 +542,23 @@ router.post("/comment", auth.ensureLoggedIn, async (req, res) => {
 
     await comment.save();
     await comment.populate("userId", ["name", "picture"]);
-    
+
     console.log("Created comment:", comment);
     res.send(comment);
   } catch (err) {
     console.error("Error creating comment:", err);
     res.status(500).send({ error: "Could not create comment" });
+  }
+});
+
+// Get user's total dreams count
+router.get("/dreams/count/:userId", async (req, res) => {
+  try {
+    const count = await Dream.countDocuments({ userId: req.params.userId });
+    res.json({ count });
+  } catch (error) {
+    console.error("Error fetching dream count:", error);
+    res.status(500).json({ error: "Failed to fetch dream count" });
   }
 });
 
