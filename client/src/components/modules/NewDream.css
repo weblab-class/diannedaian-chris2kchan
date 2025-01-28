@@ -65,15 +65,15 @@
 }
 
 .NewDream-date-input {
-  width: 100%;
-  padding: 8px;
-  border: 2px solid #5F80E0;
-  border-radius: 4px;
-  font-family: "Pixelify Sans", sans-serif;
-  font-size: 16px;
-  color: #5F80E0;
-  background: transparent;
-  text-align: center;
+  font-family: "Pixelify Sans", sans-serif !important;
+  font-size: 16px !important;
+  color: #6b8afd !important;
+  text-align: center !important;
+  padding: 8px !important;
+  border: 2px solid #6b8afd !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  width: 100% !important;
 }
 
 .NewDream-image-area {
@@ -350,6 +350,182 @@
   font-family: "Pixelify Sans", monospace;
   color: #5F80E0;
   font-size: 1.5rem;
+}
+
+/* React Datepicker Styles */
+.react-datepicker {
+  font-family: "Pixelify Sans", sans-serif !important;
+  border: 2px solid #6b8afd !important;
+  border-radius: 8px !important;
+  background: white !important;
+  padding: 10px !important;
+}
+
+.react-datepicker__header {
+  background: white !important;
+  border-bottom: none !important;
+  padding: 10px !important;
+  font-family: "Pixelify Sans", sans-serif !important;
+}
+
+.react-datepicker__current-month {
+  font-family: "Pixelify Sans", sans-serif !important;
+  color: #6b8afd !important;
+  font-size: 16px !important;
+}
+
+.react-datepicker__day-name {
+  font-family: "Pixelify Sans", sans-serif !important;
+  color: #6b8afd !important;
+  font-size: 14px !important;
+  margin: 5px !important;
+}
+
+.react-datepicker__day {
+  font-family: "Pixelify Sans", sans-serif !important;
+  color: #6b8afd !important;
+  font-size: 14px !important;
+  margin: 5px !important;
+  width: 2em !important;
+  line-height: 2em !important;
+  border-radius: 4px !important;
+}
+
+.react-datepicker__day:hover {
+  background: rgba(107, 138, 253, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+.react-datepicker__day--selected {
+  background: #6b8afd !important;
+  color: white !important;
+  border-radius: 4px !important;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background: rgba(107, 138, 253, 0.2) !important;
+  color: #6b8afd !important;
+}
+
+.react-datepicker__day--today {
+  color: #FF4444 !important;
+  font-weight: bold !important;
+}
+
+.react-datepicker__day--outside-month {
+  color: #bbb !important;
+}
+
+.react-datepicker__navigation {
+  top: 15px !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: #6b8afd !important;
+  border-width: 2px 2px 0 0 !important;
+  height: 8px !important;
+  width: 8px !important;
+}
+
+.react-datepicker__input-container input {
+  font-family: "Pixelify Sans", sans-serif !important;
+  font-size: 16px !important;
+  color: #6b8afd !important;
+  text-align: center !important;
+  padding: 8px !important;
+  border: 2px solid #6b8afd !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  width: 100% !important;
+}
+
+/* React Calendar Styles */
+.react-calendar {
+  font-family: "Pixelify Sans", sans-serif !important;
+  border: 2px solid #6b8afd !important;
+  border-radius: 8px !important;
+  background: white !important;
+  padding: 10px !important;
+  width: 300px !important;
+}
+
+.react-calendar button {
+  font-family: "Pixelify Sans", sans-serif !important;
+  font-size: 14px !important;
+}
+
+.react-calendar__navigation {
+  margin-bottom: 10px !important;
+}
+
+.react-calendar__navigation button {
+  font-family: "Pixelify Sans", sans-serif !important;
+  color: #6b8afd !important;
+  font-size: 16px !important;
+  min-width: 40px !important;
+  background: none !important;
+  padding: 5px 0 !important;
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: rgba(107, 138, 253, 0.1) !important;
+  border-radius: 4px;
+}
+
+.react-calendar__month-view__weekdays {
+  font-family: "Pixelify Sans", sans-serif !important;
+  font-size: 14px !important;
+  color: #6b8afd !important;
+  text-transform: uppercase !important;
+  font-weight: normal !important;
+  text-decoration: none !important;
+  margin-bottom: 5px !important;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  padding: 5px !important;
+  text-decoration: none !important;
+}
+
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none !important;
+  cursor: default !important;
+}
+
+.react-calendar__month-view__days__day {
+  font-family: "Pixelify Sans", sans-serif !important;
+  color: #6b8afd !important;
+  padding: 8px 0 !important;
+}
+
+.react-calendar__month-view__days__day--weekend {
+  color: #6b8afd !important;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: #bbb !important;
+}
+
+.react-calendar__tile {
+  font-family: "Pixelify Sans", sans-serif !important;
+  font-size: 14px !important;
+  padding: 10px 0 !important;
+  border-radius: 4px !important;
+}
+
+.react-calendar__tile--active,
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background: #6b8afd !important;
+  color: white !important;
+  border-radius: 4px !important;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background: rgba(107, 138, 253, 0.1) !important;
+  border-radius: 4px !important;
 }
 
 @keyframes fadeIn {

@@ -24,10 +24,10 @@ const ParticleBackground = () => {
         fpsLimit: 120,
         particles: {
           number: {
-            value: 100,
+            value: 150,
             density: {
               enable: true,
-              value_area: 800,
+              value_area: 1000,
             },
           },
           color: {
@@ -37,22 +37,22 @@ const ParticleBackground = () => {
             type: "circle",
           },
           opacity: {
-            value: 0.5,
+            value: 0.8,
             random: true,
             anim: {
               enable: true,
               speed: 1,
-              minimumValue: 0.1,
+              minimumValue: 0.3,
               sync: false,
             },
           },
           size: {
-            value: 3,
+            value: 10,
             random: true,
             anim: {
               enable: true,
               speed: 2,
-              minimumValue: 0.1,
+              minimumValue: 0.5,
               sync: false,
             },
           },
@@ -60,8 +60,8 @@ const ParticleBackground = () => {
             enable: true,
             distance: 150,
             color: "#ffffff",
-            opacity: 0.4,
-            width: 1,
+            opacity: 0.6,
+            width: 1.5,
           },
           move: {
             enable: true,
@@ -94,7 +94,7 @@ const ParticleBackground = () => {
           },
           modes: {
             grab: {
-              distance: 140,
+              distance: 180,
               links: {
                 opacity: 1,
               },

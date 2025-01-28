@@ -13,6 +13,7 @@ const NewDream = ({ onNewDream, onClose }) => {
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [generatedImage, setGeneratedImage] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     // Disable scrolling on mount
@@ -44,30 +45,47 @@ const NewDream = ({ onNewDream, onClose }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!dreamText.trim()) return;
+    setIsSubmitting(true);
 
     try {
-      const dream = {
+      if (!dreamText.trim()) {
+        throw new Error("Dream text cannot be empty");
+      }
+
+      // Format tags to match database schema
+      const formattedTags = selectedTags.map(tag => ({
+        id: tag.id,
+        text: tag.text,
+        color: tag.color
+      }));
+
+      const dreamData = {
         text: dreamText,
-        imageUrl: generatedImage,
+        date: new Date().toISOString(),
         public: isPublic,
-        tags: selectedTags,
-        dateCreated: selectedDate.toISOString(), // Ensure date is properly formatted
+        tags: formattedTags,
+        imageUrl: generatedImage || "",
       };
 
-      console.log("Saving dream with data:", dream);
-      const newDream = await post("/api/dreams", dream);
-      console.log("Received saved dream:", newDream);
-      onNewDream(newDream);
-      
-      // Reset form and close popup
+      console.log("Sending dream data:", dreamData);
+      const response = await post("/api/dreams", dreamData);
+      console.log("Dream saved successfully:", response);
+
       setDreamText("");
       setSelectedTags([]);
       setIsPublic(false);
-      setGeneratedImage(null);
+      setGeneratedImage("");
       onClose();
-    } catch (err) {
-      console.log("Error saving dream:", err);
+    } catch (error) {
+      console.error("Error saving dream:", error);
+      console.error("Error details:", {
+        message: error.message,
+        response: error.response,
+        data: error.response?.data
+      });
+      alert("Failed to save dream. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -128,7 +146,7 @@ const NewDream = ({ onNewDream, onClose }) => {
                 />
               </div>
 
-              <button type="submit" className="NewDream-save-button">
+              <button type="submit" className="NewDream-save-button" disabled={isSubmitting}>
                 <img src="/assets/savedreambutton.png" alt="Save Dream" />
               </button>
             </div>

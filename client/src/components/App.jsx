@@ -5,6 +5,7 @@ import jwt_decode from "jwt-decode";
 import { NavBar } from "./NavBar";
 import LoginScreen from "./pages/LoginScreen";
 import EnvelopeAnimation from "./modules/EnvelopeAnimation";
+import BackgroundMusic from "./modules/BackgroundMusic";
 
 import "../utilities.css";
 import "../fonts.css";
@@ -143,6 +144,7 @@ const App = () => {
           <NavBar handleLogout={handleLogout} onDreamscapeClick={handleDreamscapeClick} />
           <div className="App-container">
             <Outlet />
+            <BackgroundMusic />
           </div>
         </>
       ) : (

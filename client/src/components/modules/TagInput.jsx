@@ -2,18 +2,20 @@ import React, { useState, useRef, useEffect } from "react";
 import "./TagInput.css";
 
 const PRESET_TAGS = [
-  { id: "daily", text: "Daily", color: "#E6E6FA" },
-  { id: "special-event", text: "Special Event", color: "#FFE4B5" },
-  { id: "work", text: "Work", color: "#B0E0E6" },
-  { id: "personal", text: "Personal", color: "#FFB6C1" },
-  { id: "planning", text: "Planning", color: "#FFDAB9" },
-  { id: "art", text: "Art", color: "#D3D3D3" },
-  { id: "life-lesson", text: "Life Lesson", color: "#98FB98" },
-  { id: "career", text: "Career", color: "#90EE90" },
-  { id: "research", text: "Research", color: "#FFC0CB" },
-  { id: "travel", text: "Travel", color: "#F5F5F5" },
-  { id: "school", text: "School", color: "#F5DEB3" },
+  { id: "nightmare", text: "Nightmare", color: "#FF4444" },
+  { id: "joyful", text: "Joyful", color: "#FFD700" },
+  { id: "neutral", text: "Neutral", color: "#E6E6FA" },
 ];
+
+// Generate a random vibrant color
+const generateVibrantColor = () => {
+  // HSL color space: Hue (0-360), Saturation (0-100%), Lightness (0-100%)
+  const hue = Math.floor(Math.random() * 360); // Any hue
+  const saturation = Math.floor(Math.random() * 20) + 80; // 80-100% saturation
+  const lightness = Math.floor(Math.random() * 20) + 40; // 40-60% lightness
+  
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+};
 
 const TagInput = ({ selectedTags, onTagsChange }) => {
   const [inputValue, setInputValue] = useState("");
@@ -53,19 +55,19 @@ const TagInput = ({ selectedTags, onTagsChange }) => {
     const newTag = {
       id: inputValue.toLowerCase().replace(/\s+/g, '-'),
       text: inputValue.trim(),
-      color: '#' + Math.floor(Math.random()*16777215).toString(16), // Random color
+      color: generateVibrantColor(),
     };
 
     handleTagSelect(newTag);
   };
 
   const handleTagSelect = (tag) => {
-    if (!selectedTags.find(t => t.id === tag.id)) {
+    if (!selectedTags.some(t => t.id === tag.id)) {
       onTagsChange([...selectedTags, tag]);
-      setInputValue("");
-      setIsDropdownOpen(false);
-      setShowInput(false);
     }
+    setInputValue("");
+    setIsDropdownOpen(false);
+    setShowInput(false);
   };
 
   const handleRemoveTag = (tagToRemove) => {
@@ -83,10 +85,16 @@ const TagInput = ({ selectedTags, onTagsChange }) => {
     }
   };
 
+  const handleAddButtonClick = () => {
+    setShowInput(true);
+    setIsDropdownOpen(true);
+    setFilteredTags(PRESET_TAGS);
+  };
+
   return (
     <div className="tag-input-container">
       <div className="selected-tags">
-        {selectedTags.map(tag => (
+        {selectedTags.map((tag) => (
           <span
             key={tag.id}
             className="tag"
@@ -106,28 +114,27 @@ const TagInput = ({ selectedTags, onTagsChange }) => {
           <button
             type="button"
             className="add-tag-button"
-            onClick={() => setShowInput(true)}
+            onClick={handleAddButtonClick}
           >
             +
           </button>
         )}
       </div>
-      
+
       {showInput && (
-        <div className="input-wrapper">
+        <div className="input-wrapper" ref={inputRef}>
           <input
-            ref={inputRef}
             type="text"
             className="tag-input"
             value={inputValue}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            onFocus={() => setIsDropdownOpen(true)}
-            placeholder="Add tags..."
+            placeholder="Type to search or create tag..."
+            autoFocus
           />
           {isDropdownOpen && (
             <div className="tag-dropdown" ref={dropdownRef}>
-              {filteredTags.map(tag => (
+              {filteredTags.map((tag) => (
                 <div
                   key={tag.id}
                   className="tag-option"

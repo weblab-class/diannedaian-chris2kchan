@@ -2,12 +2,32 @@ import React from "react";
 import cloud1 from "/assets/cloud1.png";
 import cloud2 from "/assets/cloud2.png";
 import cloud3 from "/assets/cloud3.png";
+import happyCloud1 from "/assets/happycloud1.png";
+import happyCloud2 from "/assets/happycloud2.png";
+import happyCloud3 from "/assets/happycloud3.png";
+import sadCloud1 from "/assets/sadcloud1.png";
+import sadCloud2 from "/assets/sadcloud2.png";
+import sadCloud3 from "/assets/sadcloud3.png";
 import "./DreamCloud.css";
 import "../../fonts.css";
 
 const DreamCloud = ({ dream, position, onDreamClick }) => {
-  // Cycle through clouds in order based on position
-  const clouds = [cloud1, cloud2, cloud3];
+  // Determine which set of clouds to use based on tags
+  const getCloudSet = (dream) => {
+    const hasJoyful = dream.tags?.some(tag => tag.id === "joyful");
+    const hasNightmare = dream.tags?.some(tag => tag.id === "nightmare");
+
+    if (hasJoyful && !hasNightmare) {
+      return [happyCloud1, happyCloud2, happyCloud3];
+    } else if (hasNightmare && !hasJoyful) {
+      return [sadCloud1, sadCloud2, sadCloud3];
+    } else {
+      return [cloud1, cloud2, cloud3];
+    }
+  };
+
+  // Get appropriate cloud set and cycle through them
+  const clouds = getCloudSet(dream);
   const cloudIndex = Math.floor(position / 400) % clouds.length;
   const cloudImage = clouds[cloudIndex];
 
@@ -50,11 +70,12 @@ const DreamCloud = ({ dream, position, onDreamClick }) => {
       className="DreamCloud" 
       style={{ top: `${position}px` }}
       onClick={handleClick}
-      role="button"
       tabIndex={0}
+      role="button"
+      aria-label={`View dream from ${getFormattedDate(dream)}`}
     >
       <img src={cloudImage} alt="Dream Cloud" className="DreamCloud-image" />
-      <span className="DreamCloud-date">{getFormattedDate(dream)}</span>
+      <div className="DreamCloud-date">{getFormattedDate(dream)}</div>
     </div>
   );
 };

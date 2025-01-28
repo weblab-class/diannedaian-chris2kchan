@@ -8,6 +8,7 @@ const DreamSchema = new mongoose.Schema({
     default: Date.now 
   }, // Timestamp
   tags: [{
+    id: String,
     text: String,
     color: String
   }],

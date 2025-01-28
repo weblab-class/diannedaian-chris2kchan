@@ -15,6 +15,7 @@ const Postcard = ({ dream, onClose, onUpdate }) => {
   const [imageUrl, setImageUrl] = useState(dream.imageUrl || "");
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     // Disable scrolling on mount
@@ -42,53 +43,46 @@ const Postcard = ({ dream, onClose, onUpdate }) => {
     setIsGeneratingImage(false);
   };
 
-  const handleSave = async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!dreamText.trim()) return;
+    setIsSubmitting(true);
 
     try {
-      if (!userId) {
-        throw new Error("Please log in to save your dream");
-      }
-
-      console.log("Original dream:", dream);
-      console.log("Current public state:", isPublic);
-      console.log("Current userId:", userId);
-      
       // Format tags to match database schema
       const formattedTags = selectedTags.map(tag => ({
+        id: tag.id,
         text: tag.text,
         color: tag.color
       }));
-      
+
       const updatedDream = {
         _id: dream._id,
         text: dreamText,
         dateCreated: selectedDate.toISOString(),
-        tags: formattedTags,
         public: isPublic,
+        tags: formattedTags,
         imageUrl: imageUrl,
         userId: userId
       };
 
-      console.log("Sending update request with data:", updatedDream);
       const response = await post("/api/dreams/update", updatedDream);
-      console.log("Received updated dream:", response);
-      
+      console.log("Dream updated successfully:", response);
       if (onUpdate) {
         onUpdate(response);
       }
       onClose();
-    } catch (err) {
-      console.log("Error updating dream:", err);
-      if (err.message === "Please log in to save your dream") {
-        alert(err.message);
-      } else if (err.response) {
-        console.log("Error response:", err.response);
-        alert(`Failed to update dream: ${err.response.data?.error || 'Please try again.'}`);
+    } catch (error) {
+      console.error("Error updating dream:", error);
+      if (error.message === "Please log in to save your dream") {
+        alert(error.message);
+      } else if (error.response) {
+        console.log("Error response:", error.response);
+        alert(`Failed to update dream: ${error.response.data?.error || 'Please try again.'}`);
       } else {
         alert("Failed to update dream. Please try again.");
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -153,11 +147,11 @@ const Postcard = ({ dream, onClose, onUpdate }) => {
                 className="NewDream-input"
               />
             </div>
-            <button className="NewDream-save-button" onClick={handleSave} disabled={!dreamText.trim()}>
+            <button className="NewDream-save-button" onClick={handleSubmit} disabled={!dreamText.trim() || isSubmitting}>
               <img 
                 src="/assets/savedreambutton.png"
                 alt="Save" 
-                style={{ opacity: !dreamText.trim() ? 0.5 : 1 }}
+                style={{ opacity: !dreamText.trim() || isSubmitting ? 0.5 : 1 }}
               />
             </button>
           </div>

@@ -117,15 +117,20 @@ router.post("/generate-dream-image", async (req, res) => {
 // Saving user dreams
 router.post("/dreams", auth.ensureLoggedIn, async (req, res) => {
   try {
+    console.log("Received dream data:", req.body);
+    
     // Get user's profile
     const userId = req.user.googleid;
+    console.log("Looking up profile for userId:", userId);
+    
     const profile = await Profile.findOne({ userId });
+    console.log("Found profile:", profile);
     
     const newDream = new Dream({
       userId: userId,
       text: req.body.text,
       imageUrl: req.body.imageUrl,
-      date: req.body.date,
+      date: req.body.date || new Date(),
       public: req.body.public,
       tags: req.body.tags,
       userProfile: {
@@ -134,7 +139,10 @@ router.post("/dreams", auth.ensureLoggedIn, async (req, res) => {
       }
     });
 
+    console.log("Created new dream object:", newDream);
+
     const savedDream = await newDream.save();
+    console.log("Successfully saved dream:", savedDream);
 
     // Update profile dream counts
     if (profile) {
@@ -143,12 +151,19 @@ router.post("/dreams", auth.ensureLoggedIn, async (req, res) => {
         profile.publicDreamCount = (profile.publicDreamCount || 0) + 1;
       }
       await profile.save();
+      console.log("Updated profile counts");
     }
 
     res.send(savedDream);
   } catch (err) {
     console.error("Error saving dream:", err);
-    res.status(500).send(err);
+    console.error("Error details:", {
+      name: err.name,
+      message: err.message,
+      stack: err.stack,
+      body: req.body
+    });
+    res.status(500).json({ error: err.message });
   }
 });
 
