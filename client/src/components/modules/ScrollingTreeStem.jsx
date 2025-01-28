@@ -84,7 +84,7 @@ const ScrollingTreeStem = ({ dreams = [], onDreamClick }) => {
               loading="lazy"
             />
           ))}
-          
+
           {/* Dream clouds */}
           {cloudPositions.map((dream) => (
             <DreamCloud
@@ -94,7 +94,7 @@ const ScrollingTreeStem = ({ dreams = [], onDreamClick }) => {
               onDreamClick={onDreamClick}
             />
           ))}
-          
+
           {/* Growing bottom section */}
           {[...Array(bottomImages)].map((_, index) => (
             <img
@@ -107,7 +107,7 @@ const ScrollingTreeStem = ({ dreams = [], onDreamClick }) => {
           ))}
         </div>
       </div>
-      {showBackToTop && <BackToTop />}
+      {showBackToTop && <BackToTop visible={true} />}
     </>
   );
 };

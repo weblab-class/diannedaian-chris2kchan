@@ -46,7 +46,7 @@
   background-position: bottom;
   animation: slideBackground 150s linear infinite;
   z-index: 3;
-  opacity: 1.0;
+  opacity: 1;
   height: 150%; /* Adjust height to zoom in on the clouds */
   bottom: -50px; /* Added bottom offset to match cloud-layer-2 */
   position: absolute;
@@ -73,9 +73,10 @@
   color: #6b8afd;
   font-family: "Pixelify Sans", sans-serif;
   z-index: 1;
-  position: relative;
-  transform: translateY(20%) translateX(-40%);
-  margin-right: 100px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-45%, -45%);
 }
 
 .login-screen h1,
