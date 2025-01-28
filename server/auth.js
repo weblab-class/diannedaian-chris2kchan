@@ -72,10 +72,13 @@ function populateCurrentUser(req, res, next) {
 }
 
 function ensureLoggedIn(req, res, next) {
-  if (!req.user) {
+  if (!req.session || !req.session.user) {
+    console.log("❌ Auth check failed - no session or user");
     return res.status(401).send({ err: "not logged in" });
   }
 
+  req.user = req.session.user;
+  console.log("✅ Auth check passed for user:", req.user.name);
   next();
 }
 

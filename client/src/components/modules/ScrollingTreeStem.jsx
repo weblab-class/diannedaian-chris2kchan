@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import treeStemImage from "/assets/treestem.png";
+import treeTopImage from "/treetop.png";
 import DreamCloud from "./DreamCloud";
 import BackToTop from "./BackToTop";
 import "./ScrollingTreeStem.css";
@@ -21,6 +22,12 @@ const ScrollingTreeStem = ({ dreams = [], onDreamClick }) => {
       const scrollPosition = window.scrollY;
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
+
+      // Prevent overscrolling
+      if (scrollPosition + windowHeight > documentHeight) {
+        window.scrollTo(0, documentHeight - windowHeight);
+        return;
+      }
 
       // Update last scroll position
       const isScrollingDown = scrollPosition > lastScrollY.current;
@@ -71,8 +78,8 @@ const ScrollingTreeStem = ({ dreams = [], onDreamClick }) => {
           {[...Array(TOP_IMAGES)].map((_, index) => (
             <img
               key={`top-${index}`}
-              src={treeStemImage}
-              alt="Tree Stem"
+              src={index === 0 ? treeTopImage : treeStemImage}
+              alt={index === 0 ? "Tree Top" : "Tree Stem"}
               className="tree-stem-image"
               loading="lazy"
             />
@@ -100,7 +107,7 @@ const ScrollingTreeStem = ({ dreams = [], onDreamClick }) => {
           ))}
         </div>
       </div>
-      <BackToTop visible={showBackToTop} />
+      {showBackToTop && <BackToTop />}
     </>
   );
 };

@@ -35,6 +35,9 @@
   font-family: "Pixelify Sans", monospace;
   pointer-events: none;
   text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  animation: dateAppear 0.5s ease-out forwards;
+  animation-delay: 0.1s; /* Slight delay to ensure cloud appears first */
 }
 
 @keyframes cloudAppear {
@@ -45,5 +48,14 @@
   to {
     opacity: 1;
     transform: translateX(-50%) scale(1);
+  }
+}
+
+@keyframes dateAppear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }

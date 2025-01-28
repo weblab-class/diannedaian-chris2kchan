@@ -11,6 +11,7 @@ const express = require("express");
 const auth = require("./auth");
 const Dream = require("./models/dream");
 const Profile = require("./models/profile");
+const Comment = require("./models/comment"); // Import the Comment model
 
 // import the OpenAI API
 const OpenAI = require("openai");
@@ -156,6 +157,12 @@ router.post("/dreams/update", auth.ensureLoggedIn, async (req, res) => {
   try {
     console.log("Updating dream with body:", req.body);
     console.log("Current user:", req.user);
+    console.log("Session:", req.session);
+
+    if (!req.user || !req.user.googleid) {
+      console.log("❌ No authenticated user found");
+      return res.status(401).send({ error: "Please log in to update dreams" });
+    }
 
     const dream = await Dream.findById(req.body._id);
     if (!dream) {
@@ -193,7 +200,7 @@ router.post("/dreams/update", auth.ensureLoggedIn, async (req, res) => {
     res.send(dream);
   } catch (err) {
     console.log("Error updating dream:", err);
-    res.status(500).send(err);
+    res.status(500).send({ error: err.message });
   }
 });
 
@@ -389,6 +396,45 @@ router.post("/profile/avatar", async (req, res) => {
   } catch (error) {
     console.error("Error uploading avatar:", error);
     res.status(500).json({ error: "Failed to upload avatar" });
+  }
+});
+
+// Comment endpoints
+router.get("/comments/:dreamId", async (req, res) => {
+  try {
+    const comments = await Comment.find({ dreamId: req.params.dreamId })
+      .populate("userId", ["name", "picture"])
+      .sort({ dateCreated: 1 });
+    res.send(comments);
+  } catch (err) {
+    console.error("Error getting comments:", err);
+    res.status(500).send({ error: "Could not get comments" });
+  }
+});
+
+router.post("/comment", auth.ensureLoggedIn, async (req, res) => {
+  try {
+    // Validate dream exists
+    const dream = await Dream.findById(req.body.dreamId);
+    if (!dream) {
+      return res.status(404).send({ error: "Dream not found" });
+    }
+
+    const comment = new Comment({
+      userId: req.user._id,
+      dreamId: req.body.dreamId,
+      content: req.body.content,
+      dateCreated: new Date(),
+    });
+
+    await comment.save();
+    await comment.populate("userId", ["name", "picture"]);
+    
+    console.log("Created comment:", comment);
+    res.send(comment);
+  } catch (err) {
+    console.error("Error creating comment:", err);
+    res.status(500).send({ error: "Could not create comment" });
   }
 });
 

@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import TagInput from "./TagInput";
 import { post } from "../../utilities";
+import { UserContext } from "../App";
 import "./NewDream.css";
 
 const Postcard = ({ dream, onClose, onUpdate }) => {
-  // Initialize isPublic with the dream's public state, defaulting to false if undefined
+  const { userId } = useContext(UserContext);
   const [dreamText, setDreamText] = useState(dream.text || "");
   const [selectedDate, setSelectedDate] = useState(dream.dateCreated ? new Date(dream.dateCreated) : new Date());
   const [selectedTags, setSelectedTags] = useState(dream.tags || []);
@@ -21,6 +22,7 @@ const Postcard = ({ dream, onClose, onUpdate }) => {
     setIsLoaded(true);
     console.log("Initial dream public state:", dream.public);
     console.log("Initial isPublic state:", isPublic);
+    console.log("Current userId:", userId);
     
     // Re-enable scrolling on unmount
     return () => {
@@ -45,17 +47,28 @@ const Postcard = ({ dream, onClose, onUpdate }) => {
     if (!dreamText.trim()) return;
 
     try {
+      if (!userId) {
+        throw new Error("Please log in to save your dream");
+      }
+
       console.log("Original dream:", dream);
       console.log("Current public state:", isPublic);
+      console.log("Current userId:", userId);
+      
+      // Format tags to match database schema
+      const formattedTags = selectedTags.map(tag => ({
+        text: tag.text,
+        color: tag.color
+      }));
       
       const updatedDream = {
         _id: dream._id,
         text: dreamText,
         dateCreated: selectedDate.toISOString(),
-        tags: selectedTags,
+        tags: formattedTags,
         public: isPublic,
         imageUrl: imageUrl,
-        userId: dream.userId
+        userId: userId
       };
 
       console.log("Sending update request with data:", updatedDream);
@@ -68,7 +81,9 @@ const Postcard = ({ dream, onClose, onUpdate }) => {
       onClose();
     } catch (err) {
       console.log("Error updating dream:", err);
-      if (err.response) {
+      if (err.message === "Please log in to save your dream") {
+        alert(err.message);
+      } else if (err.response) {
         console.log("Error response:", err.response);
         alert(`Failed to update dream: ${err.response.data?.error || 'Please try again.'}`);
       } else {

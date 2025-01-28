@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 
 import { NavBar } from "./NavBar";
@@ -21,6 +21,8 @@ const App = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [showAnimation, setShowAnimation] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -109,8 +111,19 @@ const App = () => {
     post("/api/logout");
   };
 
+  const handleDreamscapeClick = (e) => {
+    e.preventDefault(); // Prevent default navigation
+    if (location.pathname !== "/") {
+      navigate("/");
+    }
+  };
+
+  const handleAnimationComplete = () => {
+    setShowAnimation(false);
+  };
+
   if (isLoading) {
-    return <div className="loading">Loading...</div>;
+    return <div>Loading...</div>;
   }
 
   if (showAnimation) {
@@ -127,7 +140,7 @@ const App = () => {
     <UserContext.Provider value={{ userId, userName, userProfile, setUserProfile }}>
       {userId ? (
         <>
-          <NavBar handleLogout={handleLogout} />
+          <NavBar handleLogout={handleLogout} onDreamscapeClick={handleDreamscapeClick} />
           <div className="App-container">
             <Outlet />
           </div>

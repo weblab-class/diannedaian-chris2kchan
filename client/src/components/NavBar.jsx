@@ -3,23 +3,23 @@ import { Link } from "react-router-dom";
 import { UserContext } from "./App";
 import "./NavBar.css";
 
-const NavBar = ({ handleLogout }) => {
+const NavBar = ({ handleLogout, onDreamscapeClick }) => {
   const { userId, userName } = useContext(UserContext);
 
   return (
     <nav className="NavBar-container">
       <div className="NavBar-title">
-        <Link to="/" className="NavBar-link">
-          Dreamscape
-        </Link>
+        <a href="/" className="NavBar-link" onClick={onDreamscapeClick}>
+          dreamscape
+        </a>
       </div>
       <div className="NavBar-linkContainer">
         <Link to="/gallery" className="NavBar-link">
-          Gallery
+          gallery
         </Link>
         {userId && (
           <Link to="/profile" className="NavBar-link">
-            Profile
+            profile
           </Link>
         )}
         {userId ? (
@@ -27,7 +27,7 @@ const NavBar = ({ handleLogout }) => {
             onClick={handleLogout}
             className="NavBar-link NavBar-button u-pointer"
           >
-            Logout
+            logout
           </button>
         ) : (
           <button

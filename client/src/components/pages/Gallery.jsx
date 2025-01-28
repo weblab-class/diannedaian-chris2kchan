@@ -1,51 +1,46 @@
 import React, { useState, useEffect } from "react";
-import "./Gallery.css";
-import PublicPost from "../modules/PublicPost.jsx";
 import { get } from "../../utilities";
+import PublicPost from "../modules/PublicPost";
+import StarryBackground from "../modules/StarryBackground";
+import "./Gallery.css";
 
 const Gallery = () => {
-  const [publicDreams, setPublicDreams] = useState([]);
+  const [dreams, setDreams] = useState([]);
   const [selectedDream, setSelectedDream] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchPublicDreams = async () => {
-      try {
-        console.log("Fetching public dreams...");
-        const data = await get("/api/public-dreams");
-        console.log("Received public dreams:", data);
-        
-        if (!data) {
-          console.error("No data received from server");
-          setError("No data received from server");
-          return;
-        }
-        
-        // Sort by date, newest first
-        const sortedDreams = data.sort((a, b) => {
-          return new Date(b.date) - new Date(a.date);
-        });
-        console.log("Sorted dreams:", sortedDreams);
-        setPublicDreams(sortedDreams);
-      } catch (error) {
-        console.error("Error fetching public dreams:", error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPublicDreams();
+    loadDreams();
   }, []);
 
-  const handleDreamClick = (dream) => {
-    console.log("Clicked dream:", dream);
+  const loadDreams = async () => {
+    try {
+      const response = await get("/api/public-dreams");
+      setDreams(response);
+      setLoading(false);
+    } catch (error) {
+      console.error("Failed to fetch dreams:", error);
+      setLoading(false);
+    }
+  };
+
+  const handleDreamClick = (dream, index) => {
     setSelectedDream(dream);
+    setSelectedIndex(index);
   };
 
   const handleClosePost = () => {
     setSelectedDream(null);
+    setSelectedIndex(null);
+  };
+
+  const handleNavigate = (direction) => {
+    const newIndex = direction === 'next' ? selectedIndex + 1 : selectedIndex - 1;
+    if (newIndex >= 0 && newIndex < dreams.length) {
+      setSelectedDream(dreams[newIndex]);
+      setSelectedIndex(newIndex);
+    }
   };
 
   if (loading) {
@@ -56,12 +51,13 @@ const Gallery = () => {
     );
   }
 
-  if (error) {
+  if (dreams.length === 0) {
     return (
       <div className="Gallery-container">
+        <StarryBackground />
         <div className="Gallery-empty">
-          <div className="Gallery-empty-text">Error loading dreams</div>
-          <div>{error}</div>
+          <h2 className="Gallery-empty-text">No public dreams yet...</h2>
+          <p>Be the first to share your dream!</p>
         </div>
       </div>
     );
@@ -69,29 +65,34 @@ const Gallery = () => {
 
   return (
     <div className="Gallery-container">
-      {publicDreams.length === 0 ? (
-        <div className="Gallery-empty">
-          <div className="Gallery-empty-text">No public dreams yet</div>
-          <div>Dreams marked as public will appear here for everyone to see</div>
-        </div>
-      ) : (
-        <div className="Gallery-grid">
-          {publicDreams.map((dream) => (
-            <div
-              key={dream._id}
-              className="Gallery-item"
-              onClick={() => handleDreamClick(dream)}
-            >
-              <img src={dream.imageUrl} alt="Dream" className="Gallery-image" />
-            </div>
-          ))}
-        </div>
-      )}
-
+      <StarryBackground />
+      <div className="Gallery-grid">
+        {dreams.map((dream, index) => (
+          <div
+            key={dream._id}
+            className="Gallery-item"
+            onClick={() => handleDreamClick(dream, index)}
+          >
+            {dream.imageUrl ? (
+              <img
+                src={dream.imageUrl}
+                alt="Dream visualization"
+                className="Gallery-image"
+                loading="lazy"
+              />
+            ) : (
+              <div className="Gallery-placeholder">No image</div>
+            )}
+          </div>
+        ))}
+      </div>
       {selectedDream && (
         <PublicPost
           dream={selectedDream}
           onClose={handleClosePost}
+          onNavigate={handleNavigate}
+          currentIndex={selectedIndex}
+          totalDreams={dreams.length}
         />
       )}
     </div>

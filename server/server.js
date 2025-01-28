@@ -59,6 +59,7 @@ app.use(cors({
   origin: "http://localhost:5173", // Allow requests from frontend
   methods: ["GET", "POST"], // Allowed request methods
   allowedHeaders: ["Content-Type"], // Allowed headers
+  credentials: true, // ⭐ Allow credentials (cookies)
 }));
 
 // ✅ Middleware: Serve static files (e.g., images)
@@ -70,6 +71,11 @@ app.use(
     secret: process.env.SESSION_SECRET, // Ensure SESSION_SECRET is set in .env
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production", // Only use secure cookies in production
+      sameSite: "lax", // Protect against CSRF
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
   })
 );
 

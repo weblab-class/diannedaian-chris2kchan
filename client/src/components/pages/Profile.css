@@ -5,6 +5,7 @@
   position: relative;
   z-index: 1;
   color: white;
+  font-family: "Pixelify Sans", monospace;
 }
 
 .u-flex {
@@ -28,7 +29,8 @@
   border-radius: 20px;
   color: white;
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  font-family: "Pixelify Sans", monospace;
   transition: all 0.2s;
 }
 
@@ -59,8 +61,8 @@
 }
 
 .profile-avatar {
-  width: 100px;  
-  height: 100px; 
+  width: 150px;  
+  height: 150px; 
   object-fit: contain; 
   margin-bottom: 0;    
 }
@@ -71,8 +73,8 @@
 }
 
 .header-avatar {
-  width: 32px;   
-  height: 32px;  
+  width: 48px;   
+  height: 48px;  
   margin-right: 10px;
   object-fit: contain; 
   border: none;
@@ -80,7 +82,8 @@
 
 .profile-info h1 {
   margin: 0 0 20px 0;
-  font-size: 2rem;
+  font-size: 2.5rem;
+  font-family: "Pixelify Sans", monospace;
 }
 
 .profile-stats {
@@ -92,16 +95,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  font-family: "Pixelify Sans", monospace;
 }
 
 .stat-value {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: bold;
 }
 
 .stat-label {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.9rem;
+  font-size: 1.1rem;
+  opacity: 0.8;
 }
 
 .edit-profile-button {
@@ -112,6 +116,7 @@
   color: white;
   cursor: pointer;
   transition: all 0.2s;
+  font-family: "Pixelify Sans", monospace;
 }
 
 .edit-profile-button:hover {
@@ -132,6 +137,7 @@
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
+  font-family: "Pixelify Sans", monospace;
 }
 
 .form-group input[type="text"],
@@ -144,6 +150,7 @@
   border-radius: 8px;
   color: white;
   margin-bottom: 8px;
+  font-family: "Pixelify Sans", monospace;
 }
 
 .form-group textarea {
@@ -162,6 +169,7 @@
   align-items: center;
   gap: 8px;
   font-weight: normal;
+  font-family: "Pixelify Sans", monospace;
 }
 
 .save-profile-button {
@@ -174,6 +182,7 @@
   cursor: pointer;
   transition: all 0.2s;
   font-size: 1rem;
+  font-family: "Pixelify Sans", monospace;
 }
 
 .save-profile-button:hover {
@@ -188,6 +197,7 @@
 .profile-section h2 {
   margin-bottom: 15px;
   font-size: 1.5rem;
+  font-family: "Pixelify Sans", monospace;
 }
 
 .social-links {
@@ -199,6 +209,7 @@
   color: white;
   text-decoration: none;
   transition: opacity 0.2s;
+  font-family: "Pixelify Sans", monospace;
 }
 
 .social-links a:hover {
@@ -212,6 +223,7 @@
   min-height: 300px;
   font-size: 1.2rem;
   color: rgba(255, 255, 255, 0.7);
+  font-family: "Pixelify Sans", monospace;
 }
 
 .DreamList-container {
@@ -250,6 +262,7 @@
 .Dream-authorName {
   color: white;
   font-size: 0.9rem;
+  font-family: "Pixelify Sans", monospace;
 }
 
 .Dream-image {
@@ -270,6 +283,7 @@
   border-radius: 15px;
   font-size: 0.8rem;
   color: white;
+  font-family: "Pixelify Sans", monospace;
 }
 
 .Dream-footer {
@@ -279,4 +293,5 @@
   margin-top: 15px;
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.8rem;
+  font-family: "Pixelify Sans", monospace;
 }
