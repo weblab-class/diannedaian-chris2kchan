@@ -5,7 +5,7 @@ import "./PublicPost.css";
 import { post, get } from "../../utilities";
 
 const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) => {
-  const { userId } = useContext(UserContext);
+  const { userId, userProfile } = useContext(UserContext);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -50,7 +50,18 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) =
 
       const response = await post("/api/comment", commentData);
       console.log("Comment created:", response);
-      setComments([response, ...comments]);
+      
+      // Add the new comment with the current user's profile info
+      const commentWithProfile = {
+        ...response,
+        userId: {
+          _id: userId,
+          name: userProfile.name,
+          picture: userProfile.picture
+        }
+      };
+      
+      setComments([commentWithProfile, ...comments]);
       setNewComment("");
     } catch (err) {
       console.error("Error posting comment:", err);
@@ -166,12 +177,12 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) =
                   onClick={() => handleProfileClick(comment.userId._id)}
                 >
                   <img
-                    src="/assets/profilepic.png"
+                    src={comment.userId.picture || "/assets/profilepic.png"}
                     alt="Profile"
                     className="PublicPost-comment-pic"
                   />
                   <span className="PublicPost-comment-username">
-                    {comment.userId.name}
+                    {comment.userId.name || "Anonymous Dreamer"}
                   </span>
                   <span className="PublicPost-comment-date">
                     {formatDate(comment.dateCreated)}

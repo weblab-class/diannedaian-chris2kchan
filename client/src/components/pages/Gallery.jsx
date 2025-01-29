@@ -1,22 +1,79 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { get } from "../../utilities";
 import PublicPost from "../modules/PublicPost";
 import StarryBackground from "../modules/StarryBackground";
 import "./Gallery.css";
 
+// Tag color mapping
+const TAG_COLORS = {
+  joyful: "#FFD700",
+  nightmare: "#FF4444",
+  neutral: "#E6E6FA",
+};
+
+// Priority tags order
+const PRIORITY_TAGS = ["joyful", "neutral", "nightmare"];
+
 const Gallery = () => {
   const [dreams, setDreams] = useState([]);
+  const [allDreams, setAllDreams] = useState([]);
   const [selectedDream, setSelectedDream] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [tagSearch, setTagSearch] = useState("");
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [availableTags, setAvailableTags] = useState([]);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isTagListOpen, setIsTagListOpen] = useState(false);
+  const searchContainerRef = useRef(null);
+  const searchInputRef = useRef(null);
 
   useEffect(() => {
     loadDreams();
-  }, []);
+    // Add click outside listener
+    const handleClickOutside = (event) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+        setIsTagListOpen(false);
+        if (!selectedTags.length) {
+          setIsSearchOpen(false);
+        }
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [selectedTags.length]);
+
+  useEffect(() => {
+    // Extract unique tags from all dreams
+    const tags = new Set();
+    allDreams.forEach(dream => {
+      dream.tags?.forEach(tag => {
+        tags.add(tag.text.toLowerCase());
+      });
+    });
+    setAvailableTags(Array.from(tags).sort());
+  }, [allDreams]);
+
+  useEffect(() => {
+    // Filter dreams based on selected tags
+    if (selectedTags.length === 0) {
+      setDreams(allDreams);
+    } else {
+      const filteredDreams = allDreams.filter(dream => 
+        selectedTags.every(selectedTag =>
+          dream.tags?.some(tag => tag.text.toLowerCase() === selectedTag.toLowerCase())
+        )
+      );
+      setDreams(filteredDreams);
+      setSelectedDream(null);
+      setSelectedIndex(null);
+    }
+  }, [selectedTags, allDreams]);
 
   const loadDreams = async () => {
     try {
       const response = await get("/api/public-dreams");
+      setAllDreams(response);
       setDreams(response);
       setLoading(false);
     } catch (error) {
@@ -43,6 +100,56 @@ const Gallery = () => {
     }
   };
 
+  const handleTagClick = (tag) => {
+    setSelectedTags(prev => {
+      const tagLower = tag.toLowerCase();
+      if (prev.includes(tagLower)) {
+        return prev.filter(t => t !== tagLower);
+      } else {
+        return [...prev, tagLower];
+      }
+    });
+  };
+
+  const handleClearTags = () => {
+    setSelectedTags([]);
+    setTagSearch("");
+    setIsTagListOpen(false);
+    if (!isSearchOpen) {
+      setIsSearchOpen(false);
+    }
+  };
+
+  const handleSearchIconClick = () => {
+    setIsSearchOpen(true);
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 100);
+  };
+
+  const handleSearchFocus = () => {
+    setIsTagListOpen(true);
+  };
+
+  const getTagColor = (tag) => {
+    return TAG_COLORS[tag.toLowerCase()] || "rgba(107, 138, 253, 0.2)";
+  };
+
+  // Sort tags with priority tags first
+  const sortTags = (tags) => {
+    const lowerTags = tags.map(tag => tag.toLowerCase());
+    const priorityTagsPresent = PRIORITY_TAGS.filter(tag => lowerTags.includes(tag));
+    const otherTags = lowerTags.filter(tag => !PRIORITY_TAGS.includes(tag)).sort();
+    return [...priorityTagsPresent, ...otherTags];
+  };
+
+  // Filter available tags based on search and sort them
+  const filteredTags = sortTags(
+    availableTags.filter(tag =>
+      tag.toLowerCase().includes(tagSearch.toLowerCase())
+    )
+  );
+
   if (loading) {
     return (
       <div className="Gallery-loading">
@@ -56,8 +163,18 @@ const Gallery = () => {
       <div className="Gallery-container">
         <StarryBackground />
         <div className="Gallery-empty">
-          <h2 className="Gallery-empty-text">No public dreams yet...</h2>
-          <p>Be the first to share your dream!</p>
+          <h2 className="Gallery-empty-text">
+            {selectedTags.length > 0 
+              ? `No dreams found with selected tags: ${selectedTags.join(", ")}`
+              : "No public dreams yet..."}
+          </h2>
+          {selectedTags.length > 0 ? (
+            <button className="Gallery-clear-search" onClick={handleClearTags}>
+              Clear Filters
+            </button>
+          ) : (
+            <p>Be the first to share your dream!</p>
+          )}
         </div>
       </div>
     );
@@ -66,6 +183,69 @@ const Gallery = () => {
   return (
     <div className="Gallery-container">
       <StarryBackground />
+      <div 
+        ref={searchContainerRef}
+        className={`Gallery-search-container ${isSearchOpen ? 'open' : ''}`}
+      >
+        {!isSearchOpen ? (
+          <button className="Gallery-search-icon" onClick={handleSearchIconClick}>
+            <img src="/assets/search.png" alt="Search" />
+          </button>
+        ) : (
+          <div className="Gallery-search-content">
+            <div className="Gallery-search-input-wrapper">
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={tagSearch}
+                onChange={(e) => setTagSearch(e.target.value)}
+                onFocus={handleSearchFocus}
+                placeholder="Search tags..."
+                className="Gallery-tag-search"
+              />
+              {selectedTags.length > 0 && (
+                <button className="Gallery-clear-search" onClick={handleClearTags}>
+                  Clear All
+                </button>
+              )}
+            </div>
+            <div className="Gallery-selected-tags">
+              {sortTags(selectedTags).map(tag => (
+                <button
+                  key={tag}
+                  className="Gallery-tag-button active"
+                  onClick={() => handleTagClick(tag)}
+                  style={{ 
+                    background: getTagColor(tag),
+                    boxShadow: `0 0 10px ${getTagColor(tag)}80`
+                  }}
+                >
+                  {tag} ×
+                </button>
+              ))}
+            </div>
+            {isTagListOpen && (
+              <div className="Gallery-tags-dropdown">
+                {filteredTags
+                  .filter(tag => !selectedTags.includes(tag.toLowerCase()))
+                  .map(tag => (
+                    <button
+                      key={tag}
+                      className="Gallery-tag-button"
+                      onClick={() => handleTagClick(tag)}
+                      style={{ 
+                        background: getTagColor(tag),
+                        opacity: 0.7
+                      }}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
       <div className="Gallery-grid">
         {dreams.map((dream, index) => (
           <div
