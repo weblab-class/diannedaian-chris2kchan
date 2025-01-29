@@ -232,11 +232,15 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams, onD
 
         {userId === dream.userId && (
           <button 
-            className="NewDream-deleteButton" 
+            className="PublicPost-deleteButton" 
             onClick={handleDelete}
             disabled={isDeleting}
           >
-            {isDeleting ? "Deleting..." : "Delete"}
+            <img
+              src="/assets/trashcan.png"
+              alt={isDeleting ? "Deleting..." : "Delete"}
+              style={{ opacity: isDeleting ? 0.5 : 1 }}
+            />
           </button>
         )}
       </div>

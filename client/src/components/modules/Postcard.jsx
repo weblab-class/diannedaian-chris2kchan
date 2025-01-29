@@ -5,6 +5,7 @@ import TagInput from "./TagInput";
 import { post } from "../../utilities";
 import { UserContext } from "../App";
 import "./NewDream.css";
+import "./Postcard.css";
 
 const Postcard = ({
   dream,
@@ -199,11 +200,15 @@ const Postcard = ({
           )}
           {userId === dream.userId && (
             <button 
-              className="NewDream-deleteButton" 
+              className="Postcard-deleteButton" 
               onClick={handleDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              <img
+                src="/assets/trashcan.png"
+                alt={isDeleting ? "Deleting..." : "Delete"}
+                style={{ opacity: isDeleting ? 0.5 : 1 }}
+              />
             </button>
           )}
         </div>

@@ -163,6 +163,34 @@
   font-family: "Pixelify Sans", cursive;
 }
 
+.Postcard-deleteButton {
+  position: absolute;
+  top: 11.5%;
+  right: 41.5%;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 1;
+  transition: transform 0.2s ease;
+}
+
+.Postcard-deleteButton img {
+  width: 30px;
+  height: auto;
+  transition: opacity 0.2s ease;
+  display: block;
+}
+
+.Postcard-deleteButton:hover {
+  transform: scale(1.1);
+}
+
+.Postcard-deleteButton:disabled {
+  cursor: not-allowed;
+  transform: none;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

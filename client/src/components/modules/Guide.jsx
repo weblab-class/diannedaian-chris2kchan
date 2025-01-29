@@ -23,6 +23,20 @@ const Guide = () => {
     setImageLoaded(false);
   }, [currentPage]);
 
+  useEffect(() => {
+    // Handle music player visibility
+    const musicContainer = document.querySelector('.music-container');
+    if (musicContainer) {
+      if (isOpen) {
+        musicContainer.style.opacity = '0.3';
+        musicContainer.style.pointerEvents = 'none';
+      } else {
+        musicContainer.style.opacity = '1';
+        musicContainer.style.pointerEvents = 'auto';
+      }
+    }
+  }, [isOpen]);
+
   const markGuideAsSeen = async () => {
     try {
       const response = await fetch(`/api/profile/update-preferences`, {
@@ -62,7 +76,7 @@ const Guide = () => {
   return (
     <div className="Guide-container">
       <button className="Guide-button" onClick={toggleGuide}>
-        <div className="Guide-icon">?</div>
+        <img src="/assets/infobutton.png" alt="Info" className="Guide-icon" />
       </button>
 
       {isOpen && (

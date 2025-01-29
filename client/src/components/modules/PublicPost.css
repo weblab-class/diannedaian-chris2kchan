@@ -473,3 +473,31 @@
 .PublicPost-text-container::-webkit-scrollbar-thumb:hover {
   background: rgba(139, 122, 184, 0.7);
  }
+
+.PublicPost-deleteButton {
+  position: absolute;
+  top: 20%;
+  right: 11%;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 1;
+  transition: transform 0.2s ease;
+}
+
+.PublicPost-deleteButton img {
+  width: 30px;
+  height: auto;
+  transition: opacity 0.2s ease;
+  display: block;
+}
+
+.PublicPost-deleteButton:hover {
+  transform: scale(1.1);
+}
+
+.PublicPost-deleteButton:disabled {
+  cursor: not-allowed;
+  transform: none;
+}
