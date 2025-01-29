@@ -51,16 +51,36 @@ mongoose
 const app = express();
 
 // Set up body parsing for handling large payloads (before other middleware)
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // ✅ Enable CORS before defining any routes
-app.use(cors({
-  origin: "http://localhost:5173", // Allow requests from frontend
-  methods: ["GET", "POST"], // Allowed request methods
-  allowedHeaders: ["Content-Type"], // Allowed headers
-  credentials: true, // ⭐ Allow credentials (cookies)
-}));
+const allowedOrigins = [
+  "http://localhost:5173", // Local development
+  "https://dreamscape-app.onrender.com", // Production domain - update this to match your actual domain
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) === -1) {
+        return callback(
+          new Error(
+            "The CORS policy for this site does not allow access from the specified Origin."
+          ),
+          false
+        );
+      }
+      return callback(null, true);
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // ⭐ Allow credentials (cookies)
+  })
+);
 
 // ✅ Middleware: Serve static files (e.g., images)
 app.use("/images", express.static(path.join(__dirname, "images")));
@@ -74,8 +94,8 @@ app.use(
     cookie: {
       secure: process.env.NODE_ENV === "production", // Only use secure cookies in production
       sameSite: "lax", // Protect against CSRF
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
   })
 );
 
