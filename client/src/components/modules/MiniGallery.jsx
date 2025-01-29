@@ -1,21 +1,37 @@
 import React, { useState } from "react";
 import "./MiniGallery.css";
+import PublicPost from "./PublicPost";
 
 const MiniGallery = ({ dreams, userId }) => {
   const [selectedDream, setSelectedDream] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
-  const handleDreamClick = (dream) => {
-    setSelectedDream(dream === selectedDream ? null : dream);
+  const handleDreamClick = (dream, index) => {
+    setSelectedDream(dream);
+    setSelectedIndex(index);
+  };
+
+  const handleClosePost = () => {
+    setSelectedDream(null);
+    setSelectedIndex(null);
+  };
+
+  const handleNavigate = (direction) => {
+    const newIndex = direction === 'next' ? selectedIndex + 1 : selectedIndex - 1;
+    if (newIndex >= 0 && newIndex < dreams.length) {
+      setSelectedDream(dreams[newIndex]);
+      setSelectedIndex(newIndex);
+    }
   };
 
   return (
     <div className="mini-gallery">
       <div className="mini-gallery-grid">
-        {dreams.map((dream) => (
+        {dreams.map((dream, index) => (
           <div 
             key={dream._id} 
             className={`mini-gallery-item ${selectedDream === dream ? 'selected' : ''}`}
-            onClick={() => handleDreamClick(dream)}
+            onClick={() => handleDreamClick(dream, index)}
           >
             {dream.imageUrl ? (
               <div className="mini-dream-preview">
@@ -57,35 +73,13 @@ const MiniGallery = ({ dreams, userId }) => {
       </div>
 
       {selectedDream && (
-        <div className="dream-modal-overlay" onClick={() => setSelectedDream(null)}>
-          <div className="dream-modal" onClick={(e) => e.stopPropagation()}>
-            {selectedDream.imageUrl && (
-              <img 
-                src={selectedDream.imageUrl} 
-                alt="Dream visualization" 
-                className="dream-modal-image"
-              />
-            )}
-            <div className="dream-modal-content">
-              <div className="dream-modal-text">{selectedDream.text}</div>
-              <div className="dream-modal-date">
-                {new Date(selectedDream.date).toLocaleDateString()}
-              </div>
-              <div className="dream-modal-tags">
-                {selectedDream.tags.map((tag) => (
-                  <span 
-                    key={tag.id} 
-                    className="dream-modal-tag"
-                    style={{ backgroundColor: tag.color }}
-                  >
-                    {tag.text}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <button className="dream-modal-close" onClick={() => setSelectedDream(null)}>×</button>
-          </div>
-        </div>
+        <PublicPost
+          dream={selectedDream}
+          onClose={handleClosePost}
+          onNavigate={handleNavigate}
+          currentIndex={selectedIndex}
+          totalDreams={dreams.length}
+        />
       )}
     </div>
   );
