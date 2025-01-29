@@ -50,6 +50,10 @@ const ProfileSchema = new mongoose.Schema({
       type: Boolean,
       default: true,
     },
+    hasSeenGuide: {
+      type: Boolean,
+      default: false,
+    },
   },
 });
 

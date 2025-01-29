@@ -404,6 +404,29 @@ router.post("/profile", auth.ensureLoggedIn, async (req, res) => {
   }
 });
 
+// Update profile preferences
+router.post("/profile/update-preferences", auth.ensureLoggedIn, async (req, res) => {
+  try {
+    const profile = await Profile.findOne({ userId: req.user.googleid });
+    
+    if (!profile) {
+      res.status(404).json({ error: "Profile not found" });
+      return;
+    }
+
+    profile.preferences = {
+      ...profile.preferences,
+      ...req.body.preferences,
+    };
+
+    await profile.save();
+    res.json(profile);
+  } catch (error) {
+    console.error("Error updating preferences:", error);
+    res.status(500).json({ error: "Failed to update preferences" });
+  }
+});
+
 // Get user profile by ID
 router.get("/profile/:userId", async (req, res) => {
   try {
