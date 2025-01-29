@@ -177,9 +177,6 @@ const Profile = () => {
       <StarryBackground />
       <div className="u-flex">
         <h1>Profile</h1>
-        <div className="header-right">
-          <Link to="/gallery" className="gallery-button">Gallery</Link>
-        </div>
       </div>
 
       {loading ? (

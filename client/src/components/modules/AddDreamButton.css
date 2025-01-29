@@ -1,13 +1,15 @@
 .AddDreamButton {
   position: fixed;
-  bottom: 0px;
-  right: 30px;
+  bottom: 2vh;
+  right: 2vw;
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
   z-index: 100;
   transition: transform 0.2s ease;
+  width: min(20vw, 200px); /* Use viewport width but cap at 200px */
+  height: auto; /* Maintain aspect ratio */
 }
 
 .AddDreamButton:hover {
@@ -15,7 +17,20 @@
 }
 
 .AddDreamButton-image {
-  width: 200px;
-  height: 200px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .AddDreamButton {
+    width: min(25vw, 150px);
+  }
+}
+
+@media (max-width: 480px) {
+  .AddDreamButton {
+    width: min(30vw, 100px);
+  }
 }

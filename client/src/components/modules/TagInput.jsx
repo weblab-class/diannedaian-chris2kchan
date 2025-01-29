@@ -5,7 +5,7 @@ const PRESET_TAGS = [
   { id: "nightmare", text: "Nightmare", color: "#FF4444" },
   { id: "joyful", text: "Joyful", color: "#FFD700" },
   { id: "neutral", text: "Neutral", color: "#E6E6FA" },
-  { id: "weird", text: "Weird", color: "#4CAF50" },
+  { id: "weird", text: "Weird", color: "#9C27B0" },
 ];
 
 // Generate a random vibrant color

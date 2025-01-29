@@ -115,6 +115,8 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) =
 
       <div className="PublicPost-container" onClick={(e) => e.stopPropagation()}>
         <img src={dream.imageUrl} alt="Dream" className="PublicPost-image" />
+        <div className="PublicPost-tape1"></div>
+        <div className="PublicPost-tape2"></div>
         <img src="/assets/stamp.png" alt="Stamp" className="PublicPost-stamp" />
         
         <div className="PublicPost-text-container">

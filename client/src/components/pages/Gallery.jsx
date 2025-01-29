@@ -9,7 +9,7 @@ const TAG_COLORS = {
   joyful: "#FFD700",
   nightmare: "#FF4444",
   neutral: "#E6E6FA",
-  weird: "#4CAF50",
+  weird: "#9C27B0",
 };
 
 // Priority tags order
