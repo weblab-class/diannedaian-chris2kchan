@@ -45,12 +45,14 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 15px;
   padding: 30px;
+  position: relative;
 }
 
 .profile-header {
   display: flex;
   align-items: flex-start;
   padding: 20px;
+  padding-top: 40px;
   margin-bottom: 30px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -162,19 +164,24 @@
 }
 
 .edit-profile-button {
-  padding: 8px 16px;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 20px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
   color: white;
-  cursor: pointer;
-  transition: all 0.2s;
   font-family: "Pixelify Sans", monospace;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 1;
 }
 
 .edit-profile-button:hover {
   background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
 }
 
 .Profile-form-group {

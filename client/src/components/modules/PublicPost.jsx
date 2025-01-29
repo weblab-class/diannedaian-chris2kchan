@@ -121,19 +121,22 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) =
           <p className="PublicPost-text">{dream.text}</p>
         </div>
 
-        {dream.tags && dream.tags.length > 0 && (
-          <div className="PublicPost-tags">
-            {dream.tags.map((tag, index) => (
-              <span
-                key={index}
-                className="PublicPost-tag"
-                style={{ backgroundColor: tag.color }}
-              >
-                {tag.text}
-              </span>
-            ))}
-          </div>
-        )}
+        <div className="PublicPost-info">
+          <span className="PublicPost-date">{formatDate(dream.date)}</span>
+          {dream.tags && dream.tags.length > 0 && (
+            <div className="PublicPost-tags">
+              {dream.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="PublicPost-tag"
+                  style={{ backgroundColor: tag.color }}
+                >
+                  {tag.text}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
 
         <div 
           className="PublicPost-profile-section" 
