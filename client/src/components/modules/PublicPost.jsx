@@ -51,17 +51,8 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) =
       const response = await post("/api/comment", commentData);
       console.log("Comment created:", response);
       
-      // Add the new comment with the current user's profile info
-      const commentWithProfile = {
-        ...response,
-        userId: {
-          _id: userId,
-          name: userProfile.name,
-          picture: userProfile.picture
-        }
-      };
-      
-      setComments([commentWithProfile, ...comments]);
+      // Use the server response directly which will have the Google profile data
+      setComments([response, ...comments]);
       setNewComment("");
     } catch (err) {
       console.error("Error posting comment:", err);
