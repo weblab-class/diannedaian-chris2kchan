@@ -75,7 +75,17 @@ const Profile = () => {
       }
 
       const updatedProfile = await response.json();
-      setProfile(updatedProfile);
+      
+      // Fetch the latest total dreams count
+      const totalDreamsResponse = await fetch(`/api/dreams/count/${currentUserId}`);
+      const totalDreamsData = await totalDreamsResponse.json();
+
+      // Update profile with the latest total dreams count
+      setProfile({
+        ...updatedProfile,
+        totalDreams: totalDreamsData.count
+      });
+      
       setIsEditing(false);
       setUserProfile((prev) => ({
         ...prev,
