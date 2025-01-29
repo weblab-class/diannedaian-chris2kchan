@@ -244,7 +244,16 @@ const Skeleton = () => {
             </div>
           )}
           <StarryBackground />
-          <AddDreamButton onNewDream={(newDream) => setDreams([newDream, ...dreams])} />
+          <AddDreamButton onNewDream={(newDream) => {
+            // Add the new dream to the beginning of the list
+            setDreams(prevDreams => [newDream, ...prevDreams]);
+            
+            // Scroll to top to show the new dream
+            window.scrollTo({
+              top: 0,
+              behavior: 'smooth'
+            });
+          }} />
           <div className="App-container">
             <div style={{ display: "none" }}>
               <div style={{ display: "none" }}>
