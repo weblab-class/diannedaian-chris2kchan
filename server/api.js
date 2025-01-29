@@ -530,7 +530,24 @@ router.get("/comments/:dreamId", async (req, res) => {
         select: ["name", "picture", "googleid"],
       })
       .sort({ dateCreated: 1 });
-    res.send(comments);
+
+    // For each comment, get the user's Google profile data
+    const commentsWithProfiles = await Promise.all(
+      comments.map(async (comment) => {
+        // Always use Google data for comments
+        const user = await User.findById(comment.userId);
+        const commentObj = comment.toObject();
+        
+        if (user) {
+          commentObj.userId.name = user.name;
+          commentObj.userId.picture = user.picture;
+        }
+
+        return commentObj;
+      })
+    );
+
+    res.send(commentsWithProfiles);
   } catch (err) {
     console.error("Error getting comments:", err);
     res.status(500).send({ error: "Could not get comments" });
@@ -558,8 +575,17 @@ router.post("/comment", auth.ensureLoggedIn, async (req, res) => {
       select: ["name", "picture", "googleid"],
     });
 
-    console.log("Created comment:", comment);
-    res.send(comment);
+    // Always use Google data for comments
+    const commentObj = comment.toObject();
+    const user = await User.findById(comment.userId);
+    
+    if (user) {
+      commentObj.userId.name = user.name;
+      commentObj.userId.picture = user.picture;
+    }
+
+    console.log("Created comment:", commentObj);
+    res.send(commentObj);
   } catch (err) {
     console.error("Error creating comment:", err);
     res.status(500).send({ error: "Could not create comment" });
