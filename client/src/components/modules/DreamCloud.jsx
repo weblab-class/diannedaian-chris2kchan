@@ -7,11 +7,14 @@ const DreamCloud = ({ dream, position, onDreamClick }) => {
   const getCloudSet = (dream) => {
     const hasJoyful = dream.tags?.some((tag) => tag.id === "joyful");
     const hasNightmare = dream.tags?.some((tag) => tag.id === "nightmare");
+    const hasWeird = dream.tags?.some((tag) => tag.id === "weird");
 
-    if (hasJoyful && !hasNightmare) {
+    if (hasJoyful && !hasNightmare && !hasWeird) {
       return ["/assets/happycloud1.png", "/assets/happycloud2.png", "/assets/happycloud3.png"];
-    } else if (hasNightmare && !hasJoyful) {
+    } else if (hasNightmare && !hasJoyful && !hasWeird) {
       return ["/assets/sadcloud1.png", "/assets/sadcloud2.png", "/assets/sadcloud3.png"];
+    } else if (hasWeird && !hasJoyful && !hasNightmare) {
+      return ["/assets/weirdcloud1.png", "/assets/weirdcloud2.png", "/assets/weirdcloud3.png"];
     } else {
       return ["/assets/cloud1.png", "/assets/cloud2.png", "/assets/cloud3.png"];
     }

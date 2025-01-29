@@ -177,7 +177,7 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) =
               <div key={comment._id} className="PublicPost-comment">
                 <div 
                   className="PublicPost-comment-header"
-                  onClick={() => handleProfileClick(comment.userProfile.googleid)}
+                  onClick={() => handleProfileClick(comment.userId.googleid)}
                 >
                   <img
                     src={comment.userProfile?.picture || "/assets/profilepic.png"}

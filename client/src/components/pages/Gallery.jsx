@@ -9,10 +9,11 @@ const TAG_COLORS = {
   joyful: "#FFD700",
   nightmare: "#FF4444",
   neutral: "#E6E6FA",
+  weird: "#4CAF50",
 };
 
 // Priority tags order
-const PRIORITY_TAGS = ["joyful", "neutral", "nightmare"];
+const PRIORITY_TAGS = ["joyful", "neutral", "nightmare", "weird"];
 
 const Gallery = () => {
   const [dreams, setDreams] = useState([]);
@@ -188,9 +189,12 @@ const Gallery = () => {
         className={`Gallery-search-container ${isSearchOpen ? 'open' : ''}`}
       >
         {!isSearchOpen ? (
-          <button className="Gallery-search-icon" onClick={handleSearchIconClick}>
-            <img src="/assets/search.png" alt="Search" />
-          </button>
+          <img 
+            src="/assets/search.png" 
+            alt="Search" 
+            className="Gallery-search-icon"
+            onClick={handleSearchIconClick}
+          />
         ) : (
           <div className="Gallery-search-content">
             <div className="Gallery-search-input-wrapper">
