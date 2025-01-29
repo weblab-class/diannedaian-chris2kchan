@@ -60,11 +60,12 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // ✅ Enable CORS before defining any routes
 app.use(cors({
   origin: process.env.NODE_ENV === "production" 
-    ? process.env.CORS_ORIGIN || "https://dreamscape-u5kc.onrender.com"
+    ? "https://dreamscape-u5kc.onrender.com"
     : "http://localhost:5173",
-  methods: ["GET", "POST"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
+  exposedHeaders: ["set-cookie"]
 }));
 
 // ✅ Middleware: Serve static files (e.g., images)
@@ -73,16 +74,16 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 // ✅ Middleware: Set up session handling
 app.use(
   session({
-    secret: process.env.SESSION_SECRET, // Ensure SESSION_SECRET is set in .env
-    resave: false,
-    saveUninitialized: false,
-    proxy: true, // Required for Render/Heroku
+    secret: process.env.SESSION_SECRET || "development_secret",
+    resave: true,
+    saveUninitialized: true,
+    proxy: true,
     cookie: {
-      secure: process.env.NODE_ENV === "production", // Only use secure cookies in production
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Protect against CSRF
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      domain: process.env.NODE_ENV === "production" ? ".render.com" : undefined,
-      httpOnly: true
+      httpOnly: true,
+      path: "/"
     }
   })
 );
