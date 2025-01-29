@@ -263,11 +263,21 @@ const Skeleton = () => {
                   setSelectedDream(null);
                   setSelectedDreamIndex(null);
                 }}
-                onUpdate={(updatedDream) => {
-                  setDreams(dreams.map(d => 
-                    d._id === updatedDream._id ? updatedDream : d
-                  ));
-                  setSelectedDream(updatedDream);
+                onUpdate={(updatedDreamOrId) => {
+                  // Handle dream deletion
+                  if (typeof updatedDreamOrId === 'string') {
+                    // If it's a string, it's a dream ID to delete
+                    setDreams(dreams.filter(d => d._id !== updatedDreamOrId));
+                    setShowPostcard(false);
+                    setSelectedDream(null);
+                    setSelectedDreamIndex(null);
+                  } else {
+                    // If it's an object, it's an updated dream
+                    setDreams(dreams.map(d => 
+                      d._id === updatedDreamOrId._id ? updatedDreamOrId : d
+                    ));
+                    setSelectedDream(updatedDreamOrId);
+                  }
                 }}
                 isFirstDream={selectedDreamIndex === 0}
                 isLastDream={selectedDreamIndex === dreams.length - 1}

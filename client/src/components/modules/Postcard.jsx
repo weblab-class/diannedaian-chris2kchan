@@ -24,6 +24,7 @@ const Postcard = ({
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     // Disable scrolling on mount
@@ -102,6 +103,37 @@ const Postcard = ({
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this dream? This action cannot be undone.")) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/dreams/${dream._id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to delete dream");
+      }
+
+      // Pass just the ID when deleting
+      if (onUpdate) {
+        onUpdate(dream._id);
+      }
+      onClose();
+    } catch (error) {
+      console.error("Error deleting dream:", error);
+      alert(`Failed to delete dream: ${error.message}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (!isLoaded) return null;
 
   return (
@@ -163,6 +195,15 @@ const Postcard = ({
                   height: '40px',
                 }}
               />
+            </button>
+          )}
+          {userId === dream.userId && (
+            <button 
+              className="NewDream-deleteButton" 
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
             </button>
           )}
         </div>

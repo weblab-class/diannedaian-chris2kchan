@@ -4,11 +4,12 @@ import { UserContext } from "../App.jsx";
 import "./PublicPost.css";
 import { post, get } from "../../utilities";
 
-const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) => {
+const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams, onDreamDelete }) => {
   const { userId, userProfile } = useContext(UserContext);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -85,6 +86,36 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) =
       day: 'numeric',
       year: 'numeric'
     });
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this dream? This action cannot be undone.")) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/dreams/${dream._id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to delete dream");
+      }
+
+      if (onDreamDelete) {
+        onDreamDelete(dream._id);
+      }
+      onClose();
+    } catch (error) {
+      console.error("Error deleting dream:", error);
+      alert(`Failed to delete dream: ${error.message}`);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -198,6 +229,16 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) =
             ))
           )}
         </div>
+
+        {userId === dream.userId && (
+          <button 
+            className="NewDream-deleteButton" 
+            onClick={handleDelete}
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </button>
+        )}
       </div>
     </div>
   );

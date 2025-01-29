@@ -211,7 +211,7 @@
 .PublicPost-stamp {
   position: absolute;
   top: 10%;
-  right: 25%;
+  right: 30%;
   width: 70%;
   height: auto;
   z-index: 2;
@@ -306,6 +306,7 @@
   border-radius: 10px;
   font-family: "Pixelify Sans", monospace;
   font-size: min(1vw, 0.9rem);
+  margin-bottom: 8px;
 }
 
 .PublicPost-comment-header {
@@ -314,9 +315,11 @@
   gap: 0.67%;
   margin-bottom: 0.67%;
   cursor: pointer;
-  padding: 0.33%;
-  border-radius: 1.67%;
+  padding: 4px;
+  border-radius: 4px;
   transition: background-color 0.2s;
+  position: relative;
+  z-index: 2;
 }
 
 .PublicPost-comment-header:hover {
@@ -324,17 +327,20 @@
 }
 
 .PublicPost-comment-pic {
-  width: 1.5em;
-  height: 1.5em;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   object-fit: cover;
+  margin-right: 8px;
 }
 
 .PublicPost-comment-username {
   font-size: 0.9em;
   font-weight: bold;
   font-family: "Pixelify Sans", monospace;
-  color: #bf9ae8;
+  color: #242263;
+  margin-right: auto;
+  cursor: pointer;
 }
 
 .PublicPost-comment-username:hover {

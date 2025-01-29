@@ -55,11 +55,24 @@ const ProfileSchema = new mongoose.Schema({
 
 // Update dream counts
 ProfileSchema.methods.updateDreamCounts = async function () {
-  const Dream = require("./dream");
-  const dreams = await Dream.find({ userId: this.userId });
-
-  this.dreamCount = dreams.length;
-  this.publicDreamCount = dreams.filter((dream) => dream.public).length;
+  try {
+    const Dream = require("./dream");
+    console.log("Updating dream counts for userId:", this.userId);
+    
+    const dreams = await Dream.find({ userId: this.userId });
+    console.log("Found dreams:", dreams.length);
+    
+    this.dreamCount = dreams.length;
+    this.publicDreamCount = dreams.filter((dream) => dream.public).length;
+    
+    console.log("Updated counts:", {
+      total: this.dreamCount,
+      public: this.publicDreamCount
+    });
+  } catch (error) {
+    console.error("Error updating dream counts:", error);
+    throw error;
+  }
 };
 
 module.exports = mongoose.model("profile", ProfileSchema);

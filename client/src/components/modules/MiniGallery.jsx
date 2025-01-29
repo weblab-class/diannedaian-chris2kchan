@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./MiniGallery.css";
 import PublicPost from "./PublicPost";
 
-const MiniGallery = ({ dreams, userId }) => {
+const MiniGallery = ({ dreams, userId, onDreamsChange }) => {
   const [selectedDream, setSelectedDream] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
 
@@ -14,6 +14,16 @@ const MiniGallery = ({ dreams, userId }) => {
   const handleClosePost = () => {
     setSelectedDream(null);
     setSelectedIndex(null);
+  };
+
+  const handleDreamDelete = (deletedDreamId) => {
+    // Update local state
+    const updatedDreams = dreams.filter(dream => dream._id !== deletedDreamId);
+    // Notify parent component
+    if (onDreamsChange) {
+      onDreamsChange(updatedDreams);
+    }
+    handleClosePost();
   };
 
   const handleNavigate = (direction) => {
@@ -76,9 +86,11 @@ const MiniGallery = ({ dreams, userId }) => {
         <PublicPost
           dream={selectedDream}
           onClose={handleClosePost}
-          onNavigate={handleNavigate}
-          currentIndex={selectedIndex}
-          totalDreams={dreams.length}
+          isFirstDream={selectedIndex === 0}
+          isLastDream={selectedIndex === dreams.length - 1}
+          onNavigateUp={() => handleNavigate('prev')}
+          onNavigateDown={() => handleNavigate('next')}
+          onDreamDelete={handleDreamDelete}
         />
       )}
     </div>

@@ -174,12 +174,9 @@ router.post("/dreams", auth.ensureLoggedIn, async (req, res) => {
     const savedDream = await newDream.save();
     console.log("✅ Successfully saved dream:", savedDream);
 
-    // Update profile dream counts
+    // Update profile dream counts using the updateDreamCounts method
     if (profile) {
-      profile.dreamCount = (profile.dreamCount || 0) + 1;
-      if (req.body.public) {
-        profile.publicDreamCount = (profile.publicDreamCount || 0) + 1;
-      }
+      await profile.updateDreamCounts();
       await profile.save();
       console.log("✅ Updated profile counts");
     }
@@ -356,13 +353,9 @@ router.post("/toggle-dream-privacy/:dreamId", auth.ensureLoggedIn, async (req, r
 
     await dream.save();
 
-    // Update profile public dream count
+    // Update profile public dream count using the updateDreamCounts method
     if (profile) {
-      if (dream.public) {
-        profile.publicDreamCount = (profile.publicDreamCount || 0) + 1;
-      } else {
-        profile.publicDreamCount = Math.max((profile.publicDreamCount || 0) - 1, 0);
-      }
+      await profile.updateDreamCounts();
       await profile.save();
     }
 
@@ -580,14 +573,113 @@ router.post("/comment", auth.ensureLoggedIn, async (req, res) => {
   }
 });
 
-// Get user's total dreams count
+// Get dream counts for a user
 router.get("/dreams/count/:userId", async (req, res) => {
   try {
-    const count = await Dream.countDocuments({ userId: req.params.userId });
-    res.json({ count });
+    const profile = await Profile.findOne({ userId: req.params.userId });
+    if (!profile) {
+      return res.status(404).json({ error: "Profile not found" });
+    }
+    
+    // Update the counts before sending
+    await profile.updateDreamCounts();
+    await profile.save();
+    
+    res.json({
+      totalDreams: profile.dreamCount,
+      publicDreams: profile.publicDreamCount
+    });
   } catch (error) {
-    console.error("Error fetching dream count:", error);
-    res.status(500).json({ error: "Failed to fetch dream count" });
+    console.error("Error fetching dream counts:", error);
+    res.status(500).json({ error: "Failed to fetch dream counts" });
+  }
+});
+
+// Delete a dream
+router.delete("/dreams/:dreamId", auth.ensureLoggedIn, async (req, res) => {
+  try {
+    console.log("Delete request received for dreamId:", req.params.dreamId);
+    console.log("Current user:", req.user);
+    
+    if (!req.user || !req.user.googleid) {
+      console.log("No authenticated user found");
+      return res.status(401).send({ error: "Please log in to delete dreams" });
+    }
+    
+    const dream = await Dream.findById(req.params.dreamId);
+    if (!dream) {
+      console.log("Dream not found with id:", req.params.dreamId);
+      return res.status(404).send({ error: "Dream not found" });
+    }
+    
+    console.log("Found dream:", dream);
+    console.log("Dream userId:", dream.userId);
+    console.log("User googleid:", req.user.googleid);
+    
+    // Only allow the creator to delete the dream
+    if (dream.userId !== req.user.googleid) {
+      console.log("Authorization failed - userId mismatch");
+      return res.status(403).send({ error: "Not authorized to delete this dream" });
+    }
+    
+    await Dream.findByIdAndDelete(req.params.dreamId);
+    console.log("Successfully deleted dream");
+    
+    // Update profile dream counts using the updateDreamCounts method
+    const profile = await Profile.findOne({ userId: req.user.googleid });
+    if (profile) {
+      await profile.updateDreamCounts();
+      await profile.save();
+      console.log("Updated profile counts");
+    }
+    
+    res.send({ success: true });
+  } catch (err) {
+    console.error("Error deleting dream:", {
+      error: err,
+      name: err.name,
+      message: err.message,
+      stack: err.stack,
+      dreamId: req.params.dreamId,
+      session: req.session,
+      user: req.user,
+      headers: req.headers
+    });
+    res.status(500).send({ error: err.message });
+  }
+});
+
+// Force recalculation of dream counts
+router.post("/profile/recalculate-counts", auth.ensureLoggedIn, async (req, res) => {
+  try {
+    console.log("Recalculating dream counts for user:", req.user.googleid);
+    const profile = await Profile.findOne({ userId: req.user.googleid });
+    
+    if (!profile) {
+      // Create profile if it doesn't exist
+      const newProfile = new Profile({
+        userId: req.user.googleid,
+        name: req.user.name,
+        picture: req.user.picture,
+      });
+      await newProfile.updateDreamCounts();
+      await newProfile.save();
+      return res.json({
+        totalDreams: newProfile.dreamCount,
+        publicDreams: newProfile.publicDreamCount
+      });
+    }
+    
+    await profile.updateDreamCounts();
+    await profile.save();
+    
+    res.json({
+      totalDreams: profile.dreamCount,
+      publicDreams: profile.publicDreamCount
+    });
+  } catch (error) {
+    console.error("Error recalculating dream counts:", error);
+    res.status(500).json({ error: "Failed to recalculate dream counts" });
   }
 });
 

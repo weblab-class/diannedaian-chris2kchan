@@ -39,7 +39,8 @@ async function getOrCreateUser(user) {
   // Create a profile for the new user
   const newProfile = new Profile({
     userId: user.sub,
-    displayName: "Dreamer",
+    name: user.name,
+    picture: user.picture,
   });
 
   await newProfile.save();

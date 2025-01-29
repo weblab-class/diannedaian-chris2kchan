@@ -344,6 +344,32 @@
   cursor: not-allowed;
 }
 
+.NewDream-deleteButton {
+  position: absolute;
+  right: 250px;
+  top: 100px;
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-family: "Pixelify Sans", monospace;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  z-index: 1000;
+}
+
+.NewDream-deleteButton:hover {
+  background: #ff6666;
+  transform: scale(1.05);
+}
+
+.NewDream-deleteButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .Gallery-empty {
   grid-column: 1 / -1;
   text-align: center;

@@ -26,7 +26,16 @@ const Profile = () => {
     const fetchData = async () => {
       try {
         const targetUserId = userId || currentUserId;
-        const [profileResponse, publicDreamsResponse, totalDreamsResponse] = await Promise.all([
+        
+        // First recalculate the counts
+        if (isOwnProfile) {
+          await fetch('/api/profile/recalculate-counts', {
+            method: 'POST',
+            credentials: 'include',
+          });
+        }
+        
+        const [profileResponse, publicDreamsResponse, dreamCountsResponse] = await Promise.all([
           fetch(`/api/profile/${targetUserId}`),
           fetch(`/api/dreams/public/${targetUserId}`),
           fetch(`/api/dreams/count/${targetUserId}`),
@@ -38,9 +47,13 @@ const Profile = () => {
 
         const profileData = await profileResponse.json();
         const dreamsData = await publicDreamsResponse.json();
-        const totalDreamsData = await totalDreamsResponse.json();
+        const dreamCountsData = await dreamCountsResponse.json();
 
-        setProfile({ ...profileData, totalDreams: totalDreamsData.count });
+        setProfile({
+          ...profileData,
+          totalDreams: dreamCountsData.totalDreams,
+          publicDreamCount: dreamCountsData.publicDreams
+        });
         setPublicDreams(dreamsData);
 
         if (isOwnProfile) {
@@ -93,13 +106,14 @@ const Profile = () => {
       const updatedProfile = await response.json();
       
       // Fetch the latest total dreams count
-      const totalDreamsResponse = await fetch(`/api/dreams/count/${currentUserId}`);
-      const totalDreamsData = await totalDreamsResponse.json();
+      const dreamCountsResponse = await fetch(`/api/dreams/count/${currentUserId}`);
+      const dreamCountsData = await dreamCountsResponse.json();
 
       // Update profile with the latest total dreams count
       setProfile({
         ...updatedProfile,
-        totalDreams: totalDreamsData.count
+        totalDreams: dreamCountsData.totalDreams,
+        publicDreamCount: dreamCountsData.publicDreams
       });
       
       setIsEditing(false);
