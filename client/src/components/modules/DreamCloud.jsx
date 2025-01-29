@@ -5,9 +5,13 @@ import "../../fonts.css";
 const DreamCloud = ({ dream, position, onDreamClick }) => {
   // Determine which set of clouds to use based on tags
   const getCloudSet = (dream) => {
-    const hasJoyful = dream.tags?.some((tag) => tag.id === "joyful");
-    const hasNightmare = dream.tags?.some((tag) => tag.id === "nightmare");
-    const hasWeird = dream.tags?.some((tag) => tag.id === "weird");
+    if (!dream || !Array.isArray(dream.tags)) {
+      return ["/assets/cloud1.png", "/assets/cloud2.png", "/assets/cloud3.png"];
+    }
+
+    const hasJoyful = dream.tags.some((tag) => tag && tag.id === "joyful");
+    const hasNightmare = dream.tags.some((tag) => tag && tag.id === "nightmare");
+    const hasWeird = dream.tags.some((tag) => tag && tag.id === "weird");
 
     if (hasJoyful && !hasNightmare && !hasWeird) {
       return ["/assets/happycloud1.png", "/assets/happycloud2.png", "/assets/happycloud3.png"];
@@ -24,6 +28,10 @@ const DreamCloud = ({ dream, position, onDreamClick }) => {
   const clouds = getCloudSet(dream);
   const cloudIndex = Math.floor(position / 400) % clouds.length;
   const cloudImage = clouds[cloudIndex];
+
+  // Determine if cloud should be on left or right side based on vertical position
+  const isRightSide = Math.floor(position / 300) % 2 === 0;
+  const cloudPosition = isRightSide ? 'right' : 'left';
 
   // Format the date - handle both string timestamps and Date objects
   const getFormattedDate = (dream) => {
@@ -61,7 +69,7 @@ const DreamCloud = ({ dream, position, onDreamClick }) => {
 
   return (
     <div
-      className="DreamCloud"
+      className={`DreamCloud DreamCloud-${cloudPosition}`}
       style={{ top: `${position}px` }}
       onClick={handleClick}
       tabIndex={0}
