@@ -56,10 +56,12 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // ✅ Enable CORS before defining any routes
 app.use(cors({
-  origin: "http://localhost:5173", // Allow requests from frontend
-  methods: ["GET", "POST"], // Allowed request methods
-  allowedHeaders: ["Content-Type"], // Allowed headers
-  credentials: true, // ⭐ Allow credentials (cookies)
+  origin: process.env.NODE_ENV === "production" 
+    ? process.env.CORS_ORIGIN || "https://dreamscape-u5kc.onrender.com"
+    : "http://localhost:5173",
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 }));
 
 // ✅ Middleware: Serve static files (e.g., images)
@@ -73,8 +75,9 @@ app.use(
     saveUninitialized: false,
     cookie: {
       secure: process.env.NODE_ENV === "production", // Only use secure cookies in production
-      sameSite: "lax", // Protect against CSRF
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Protect against CSRF
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      domain: process.env.NODE_ENV === "production" ? ".render.com" : undefined
     }
   })
 );
