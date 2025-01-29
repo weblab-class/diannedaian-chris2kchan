@@ -30,6 +30,7 @@ const Skeleton = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [userProfile, setUserProfile] = useState(null);
   const [selectedDream, setSelectedDream] = useState(null);
+  const [selectedDreamIndex, setSelectedDreamIndex] = useState(null);
   const [showPostcard, setShowPostcard] = useState(false);
 
   // Add refresh interval for profile
@@ -199,32 +200,59 @@ const Skeleton = () => {
     }
   };
 
+  const handleDreamClick = (dream, index) => {
+    console.log("Opening dream at index:", index);
+    setSelectedDream(dream);
+    setSelectedDreamIndex(index);
+    setShowPostcard(true);
+    setShowInput(false);
+  };
+
+  const handleNavigateUp = () => {
+    console.log("Navigating up from index:", selectedDreamIndex);
+    if (selectedDreamIndex > 0) {
+      const newIndex = selectedDreamIndex - 1;
+      const newDream = dreams[newIndex];
+      console.log("New dream:", newDream);
+      setSelectedDream(newDream);
+      setSelectedDreamIndex(newIndex);
+    }
+  };
+
+  const handleNavigateDown = () => {
+    console.log("Navigating down from index:", selectedDreamIndex);
+    if (selectedDreamIndex < dreams.length - 1) {
+      const newIndex = selectedDreamIndex + 1;
+      const newDream = dreams[newIndex];
+      console.log("New dream:", newDream);
+      setSelectedDream(newDream);
+      setSelectedDreamIndex(newIndex);
+    }
+  };
+
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       {userId && (
-        <>
+        <div>
           <NavBar
-            handleLogin={handleLogin}
             handleLogout={handleLogout}
             userId={userId}
+            userProfile={userProfile}
           />
           <div className="App-treestem">
             <ScrollingTreeStem 
               dreams={dreams} 
-              onDreamClick={(dream) => {
-                setSelectedDream(dream);
-                setShowPostcard(true);
-                setShowInput(false);
-              }}
+              onDreamClick={handleDreamClick}
             />
           </div>
           {showPostcard && selectedDream && (
             <div 
-              className="NewDream-overlay" 
+              className="postcard-overlay"
               onClick={(e) => {
                 if (e.target === e.currentTarget) {
                   setShowPostcard(false);
                   setSelectedDream(null);
+                  setSelectedDreamIndex(null);
                 }
               }}
             >
@@ -233,6 +261,7 @@ const Skeleton = () => {
                 onClose={() => {
                   setShowPostcard(false);
                   setSelectedDream(null);
+                  setSelectedDreamIndex(null);
                 }}
                 onUpdate={(updatedDream) => {
                   setDreams(dreams.map(d => 
@@ -240,6 +269,10 @@ const Skeleton = () => {
                   ));
                   setSelectedDream(updatedDream);
                 }}
+                isFirstDream={selectedDreamIndex === 0}
+                isLastDream={selectedDreamIndex === dreams.length - 1}
+                onNavigateUp={handleNavigateUp}
+                onNavigateDown={handleNavigateDown}
               />
             </div>
           )}
@@ -366,7 +399,7 @@ const Skeleton = () => {
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
       {!userId && (
         <div className="App-container">

@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import "./StampAnimation.css";
-import stampImage from "/assets/stamp.png";
 
 const StampAnimation = ({ onAnimationComplete }) => {
-  const [isVisible, setIsVisible] = useState(true);
-
   useEffect(() => {
     console.log("🎯 Stamp animation started");
     const timer = setTimeout(() => {
       console.log("🎯 Stamp animation completed");
-      setIsVisible(false);
       if (onAnimationComplete) {
         onAnimationComplete();
       }
@@ -21,11 +17,9 @@ const StampAnimation = ({ onAnimationComplete }) => {
     };
   }, [onAnimationComplete]);
 
-  if (!isVisible) return null;
-
   return (
     <div className="stamp-container">
-      <img src={stampImage} alt="Dream Saved" className="stamp" />
+      <img src="/assets/stamp.png" alt="Dream Saved" className="stamp" />
     </div>
   );
 };

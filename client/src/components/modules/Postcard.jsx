@@ -6,7 +6,15 @@ import { post } from "../../utilities";
 import { UserContext } from "../App";
 import "./NewDream.css";
 
-const Postcard = ({ dream, onClose, onUpdate }) => {
+const Postcard = ({
+  dream,
+  onClose,
+  onUpdate,
+  isFirstDream,
+  isLastDream,
+  onNavigateUp,
+  onNavigateDown
+}) => {
   const { userId } = useContext(UserContext);
   const [dreamText, setDreamText] = useState(dream.text || "");
   const [selectedDate, setSelectedDate] = useState(dream.dateCreated ? new Date(dream.dateCreated) : new Date());
@@ -24,12 +32,20 @@ const Postcard = ({ dream, onClose, onUpdate }) => {
     console.log("Initial dream public state:", dream.public);
     console.log("Initial isPublic state:", isPublic);
     console.log("Current userId:", userId);
-    
+
     // Re-enable scrolling on unmount
     return () => {
       document.body.style.overflow = 'unset';
     };
   }, []);
+
+  useEffect(() => {
+    setDreamText(dream.text || "");
+    setSelectedDate(dream.dateCreated ? new Date(dream.dateCreated) : new Date());
+    setSelectedTags(dream.tags || []);
+    setIsPublic(dream.public === true);
+    setImageUrl(dream.imageUrl || "");
+  }, [dream]);
 
   const handleGenerateImage = async () => {
     if (!dreamText.trim()) return;
@@ -91,8 +107,66 @@ const Postcard = ({ dream, onClose, onUpdate }) => {
   return (
     <div className="NewDream-overlay" onClick={onClose}>
       <div className="NewDream-popup" onClick={(e) => e.stopPropagation()}>
-        <img src="/assets/postcard.png" className="NewDream-card-background" alt="Dream Card" />
-        <div className="NewDream-form">
+        <div style={{ position: 'relative' }}>
+          <img src="/assets/postcard.png" className="NewDream-card-background" alt="Dream Card" />
+          {!isFirstDream && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onNavigateUp();
+              }}
+              style={{
+                position: 'absolute',
+                top: '-40px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                cursor: 'pointer',
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                zIndex: 1000,
+              }}
+            >
+              <img
+                src="/assets/uparrow.png"
+                alt="Previous Dream"
+                style={{
+                  width: '40px',
+                  height: '40px',
+                }}
+              />
+            </button>
+          )}
+          {!isLastDream && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onNavigateDown();
+              }}
+              style={{
+                position: 'absolute',
+                bottom: '-45px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                cursor: 'pointer',
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                zIndex: 1000,
+              }}
+            >
+              <img
+                src="/assets/downarrow.png"
+                alt="Next Dream"
+                style={{
+                  width: '40px',
+                  height: '40px',
+                }}
+              />
+            </button>
+          )}
+        </div>
+        <form className="NewDream-form" onSubmit={handleSubmit}>
           <div className="NewDream-left-side">
             <div className="NewDream-date">
               <DatePicker
@@ -111,9 +185,9 @@ const Postcard = ({ dream, onClose, onUpdate }) => {
             </div>
             <div className="NewDream-generate-button">
               <button onClick={handleGenerateImage} disabled={isGeneratingImage || !dreamText.trim()}>
-                <img 
+                <img
                   src="/assets/generatedreambutton.png"
-                  alt="Generate" 
+                  alt="Generate"
                   style={{ opacity: isGeneratingImage || !dreamText.trim() ? 0.5 : 1 }}
                 />
               </button>
@@ -147,15 +221,15 @@ const Postcard = ({ dream, onClose, onUpdate }) => {
                 className="NewDream-input"
               />
             </div>
-            <button className="NewDream-save-button" onClick={handleSubmit} disabled={!dreamText.trim() || isSubmitting}>
-              <img 
+            <button className="NewDream-save-button" type="submit" disabled={!dreamText.trim() || isSubmitting}>
+              <img
                 src="/assets/savedreambutton.png"
-                alt="Save" 
+                alt="Save"
                 style={{ opacity: !dreamText.trim() || isSubmitting ? 0.5 : 1 }}
               />
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

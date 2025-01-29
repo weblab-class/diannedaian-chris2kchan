@@ -63,11 +63,14 @@ const ScrollingTreeStem = ({ dreams = [], onDreamClick }) => {
   const cloudPositions = dreams
     .filter((dream) => {
       const isValid = dream && (dream.date || dream.timestamp || dream.dateCreated);
+      if (!isValid) {
+        console.log("Invalid dream:", dream);
+      }
       return isValid;
     })
     .map((dream, index) => ({
       ...dream,
-      position: 300 + index * 400,
+      position: 300 + index * 400, // Keep this consistent with navigation calculation
     }));
 
   return (
@@ -86,12 +89,12 @@ const ScrollingTreeStem = ({ dreams = [], onDreamClick }) => {
           ))}
 
           {/* Dream clouds */}
-          {cloudPositions.map((dream) => (
+          {cloudPositions.map((dream, index) => (
             <DreamCloud
               key={dream._id}
               dream={dream}
               position={dream.position}
-              onDreamClick={onDreamClick}
+              onDreamClick={() => onDreamClick(dream, index)}
             />
           ))}
 

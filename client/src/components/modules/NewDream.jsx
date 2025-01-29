@@ -86,7 +86,6 @@ const NewDream = ({ onNewDream, onClose }) => {
   };
 
   const handleStampAnimationComplete = () => {
-    setShowStamp(false);
     onClose();
   };
 
