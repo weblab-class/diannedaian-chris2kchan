@@ -38,13 +38,13 @@
   transition: all 0.2s ease;
   padding: 8px;
   border-radius: 50%;
-  background-color: rgba(26, 26, 46, 0.95);
+  background-color: #242263;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .Gallery-search-icon:hover {
   transform: scale(1.1);
-  background-color: rgba(26, 26, 46, 1);
+  background-color: #242263;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 

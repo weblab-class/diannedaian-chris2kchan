@@ -86,10 +86,9 @@ const MiniGallery = ({ dreams, userId, onDreamsChange }) => {
         <PublicPost
           dream={selectedDream}
           onClose={handleClosePost}
-          isFirstDream={selectedIndex === 0}
-          isLastDream={selectedIndex === dreams.length - 1}
-          onNavigateUp={() => handleNavigate('prev')}
-          onNavigateDown={() => handleNavigate('next')}
+          currentIndex={selectedIndex}
+          totalDreams={dreams.length}
+          onNavigate={(direction) => handleNavigate(direction === 'prev' ? 'prev' : 'next')}
           onDreamDelete={handleDreamDelete}
         />
       )}

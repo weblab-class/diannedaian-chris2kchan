@@ -5,6 +5,7 @@ import "./Guide.css";
 const Guide = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const { userProfile, setUserProfile } = useContext(UserContext);
   const totalPages = 2;
 
@@ -16,6 +17,11 @@ const Guide = () => {
       markGuideAsSeen();
     }
   }, [userProfile]);
+
+  useEffect(() => {
+    // Reset imageLoaded state when page changes
+    setImageLoaded(false);
+  }, [currentPage]);
 
   const markGuideAsSeen = async () => {
     try {
@@ -67,11 +73,14 @@ const Guide = () => {
               alt={`Guide page ${currentPage}`} 
               className="Guide-image" 
               onClick={togglePage}
+              onLoad={() => setImageLoaded(true)}
             />
             
-            <div className="Guide-pagination">
-              {currentPage} / {totalPages}
-            </div>
+            {imageLoaded && (
+              <div className="Guide-pagination">
+                {currentPage} / {totalPages}
+              </div>
+            )}
           </div>
         </div>
       )}

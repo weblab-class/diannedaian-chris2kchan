@@ -1,8 +1,10 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import "./DreamCloud.css";
 import "../../fonts.css";
 
 const DreamCloudComponent = ({ dream, position, onDreamClick }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   // Memoize the cloud set function
   const getCloudSet = useCallback((dream) => {
     if (!dream || !Array.isArray(dream.tags)) {
@@ -63,6 +65,10 @@ const DreamCloudComponent = ({ dream, position, onDreamClick }) => {
     }
   }, [onDreamClick, dream]);
 
+  const handleImageLoad = useCallback(() => {
+    setImageLoaded(true);
+  }, []);
+
   if (!dream) return null;
 
   return (
@@ -82,8 +88,11 @@ const DreamCloudComponent = ({ dream, position, onDreamClick }) => {
         alt="Dream Cloud" 
         className="DreamCloud-image"
         loading="lazy"
+        onLoad={handleImageLoad}
       />
-      <div className="DreamCloud-date">{formattedDate}</div>
+      <div className={`DreamCloud-date ${imageLoaded ? 'DreamCloud-date-visible' : ''}`}>
+        {formattedDate}
+      </div>
     </div>
   );
 };
