@@ -289,18 +289,20 @@ router.get("/public-dreams", async (req, res) => {
 });
 
 // Get all dreams for a user
-router.get("/dreams/:userId", auth.ensureLoggedIn, async auth.ensureLoggedIn, async (req, res) => {
-  try {
-    const dreams = await try {usI;t Dream.find({ userId: req.params.userId });
-  res.send(dreams);
- }c onsol .erroError fetching dreams for user:", err);
-   rs.statuserr5r0"Errerrforching: "Failed to fet:"
-  }{ ro: "Failed}to)fetch;dreams"
-  }
+router.get("/dreams/:userId", (req, res) => {
+  Dream.find({ creator_id: req.params.userId })
+    .then((dreams) => {
+      res.send(dreams);
+    })
+    .catch((err) => {
+      console.log(`Failed to get dreams for user ${req.params.userId}`, err);
+      res.status(500).send(err);
+    });
+});
 
 // Get user's public dreams
-router.get("/dreams/public/:userId", auth.ensureLoggedIn, async (req, res) => {
-  try {, auth.ensureLoggedIn
+router.get("/dreams/public/:userId", async (req, res) => {
+  try {
     const dreams = await Dream.find({
       userId: req.params.userId,
       public: true,
