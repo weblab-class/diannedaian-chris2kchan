@@ -527,10 +527,22 @@ router.get("/comments/:dreamId", async (req, res) => {
     const comments = await Comment.find({ dreamId: req.params.dreamId })
       .populate({
         path: "userId",
-        select: ["name", "picture", "googleid"],
+        select: ["googleid"],
       })
       .sort({ dateCreated: 1 });
-    res.send(comments);
+
+    // Get profiles for all comment authors
+    const commentsWithProfiles = await Promise.all(
+      comments.map(async (comment) => {
+        const profile = await Profile.findOne({ userId: comment.userId.googleid });
+        return {
+          ...comment.toObject(),
+          userProfile: profile || { name: "Anonymous Dreamer", picture: "/assets/profilepic.png" },
+        };
+      })
+    );
+
+    res.send(commentsWithProfiles);
   } catch (err) {
     console.error("Error getting comments:", err);
     res.status(500).send({ error: "Could not get comments" });
@@ -553,13 +565,15 @@ router.post("/comment", auth.ensureLoggedIn, async (req, res) => {
     });
 
     await comment.save();
-    await comment.populate({
-      path: "userId",
-      select: ["name", "picture", "googleid"],
+    
+    // Get the user's profile
+    const profile = await Profile.findOne({ userId: req.user.googleid });
+    
+    // Send back comment with profile info
+    res.send({
+      ...comment.toObject(),
+      userProfile: profile || { name: "Anonymous Dreamer", picture: "/assets/profilepic.png" },
     });
-
-    console.log("Created comment:", comment);
-    res.send(comment);
   } catch (err) {
     console.error("Error creating comment:", err);
     res.status(500).send({ error: "Could not create comment" });

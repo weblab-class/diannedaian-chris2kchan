@@ -54,7 +54,7 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) =
       // Add the new comment with the current user's profile info
       const commentWithProfile = {
         ...response,
-        userId: {
+        userProfile: {
           _id: userId,
           name: userProfile.name,
           picture: userProfile.picture
@@ -69,10 +69,10 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) =
     }
   };
 
-  const handleProfileClick = (commentUserId, googleId) => {
+  const handleProfileClick = (googleId) => {
     onClose(); // Close the post first
     // If it's your own comment, go to editable profile
-    if (commentUserId === userId) {
+    if (googleId === userId) {
       navigate("/profile");
     } else {
       navigate(`/profile/${googleId}`);
@@ -140,7 +140,7 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) =
 
         <div 
           className="PublicPost-profile-section" 
-          onClick={() => handleProfileClick(dream.userId, dream.userId)}
+          onClick={() => handleProfileClick(dream.userId)}
         >
           <img
             src={dream.userProfile?.picture || "/assets/profilepic.png"}
@@ -177,15 +177,15 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) =
               <div key={comment._id} className="PublicPost-comment">
                 <div 
                   className="PublicPost-comment-header"
-                  onClick={() => handleProfileClick(comment.userId._id, comment.userId.googleid)}
+                  onClick={() => handleProfileClick(comment.userProfile.googleid)}
                 >
                   <img
-                    src={comment.userId.picture || "/assets/profilepic.png"}
+                    src={comment.userProfile?.picture || "/assets/profilepic.png"}
                     alt="Profile"
                     className="PublicPost-comment-pic"
                   />
                   <span className="PublicPost-comment-username">
-                    {comment.userId.name || "Anonymous Dreamer"}
+                    {comment.userProfile?.name || "Anonymous Dreamer"}
                   </span>
                   <span className="PublicPost-comment-date">
                     {formatDate(comment.dateCreated)}
