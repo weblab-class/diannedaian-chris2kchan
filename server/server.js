@@ -50,6 +50,9 @@ mongoose
 // Create an Express server
 const app = express();
 
+// Trust proxy - required for secure cookies on Render
+app.set('trust proxy', 1);
+
 // Set up body parsing for handling large payloads (before other middleware)
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -73,11 +76,13 @@ app.use(
     secret: process.env.SESSION_SECRET, // Ensure SESSION_SECRET is set in .env
     resave: false,
     saveUninitialized: false,
+    proxy: true, // Required for Render/Heroku
     cookie: {
       secure: process.env.NODE_ENV === "production", // Only use secure cookies in production
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Protect against CSRF
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      domain: process.env.NODE_ENV === "production" ? ".render.com" : undefined
+      domain: process.env.NODE_ENV === "production" ? ".render.com" : undefined,
+      httpOnly: true
     }
   })
 );

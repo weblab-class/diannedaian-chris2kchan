@@ -136,14 +136,25 @@ router.post("/generate-dream-image", async (req, res) => {
 // Saving user dreams
 router.post("/dreams", auth.ensureLoggedIn, async (req, res) => {
   try {
+    console.log("📝 Starting dream save operation");
+    console.log("Session state:", req.session);
+    console.log("User state:", req.user);
     console.log("Received dream data:", req.body);
 
     // Get user's profile
-    const userId = req.user.googleid;
+    const userId = req.user?.googleid;
+    if (!userId) {
+      console.error("❌ No user ID found in request");
+      return res.status(401).json({ error: "User not properly authenticated" });
+    }
+    
     console.log("Looking up profile for userId:", userId);
-
     const profile = await Profile.findOne({ userId });
     console.log("Found profile:", profile);
+
+    if (!profile) {
+      console.warn("⚠️ No profile found for user, creating default profile");
+    }
 
     const newDream = new Dream({
       userId: userId,
@@ -154,14 +165,14 @@ router.post("/dreams", auth.ensureLoggedIn, async (req, res) => {
       tags: req.body.tags,
       userProfile: {
         name: profile?.name || "Dreamer",
-        picture: "/assets/profilepic.png",
+        picture: profile?.picture || "/assets/profilepic.png",
       },
     });
 
     console.log("Created new dream object:", newDream);
 
     const savedDream = await newDream.save();
-    console.log("Successfully saved dream:", savedDream);
+    console.log("✅ Successfully saved dream:", savedDream);
 
     // Update profile dream counts
     if (profile) {
@@ -170,17 +181,20 @@ router.post("/dreams", auth.ensureLoggedIn, async (req, res) => {
         profile.publicDreamCount = (profile.publicDreamCount || 0) + 1;
       }
       await profile.save();
-      console.log("Updated profile counts");
+      console.log("✅ Updated profile counts");
     }
 
     res.send(savedDream);
   } catch (err) {
-    console.error("Error saving dream:", err);
-    console.error("Error details:", {
+    console.error("❌ Error saving dream:", {
+      error: err,
       name: err.name,
       message: err.message,
       stack: err.stack,
       body: req.body,
+      session: req.session,
+      user: req.user,
+      headers: req.headers
     });
     res.status(500).json({ error: err.message });
   }
