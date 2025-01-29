@@ -19,17 +19,22 @@ const Profile = () => {
     picture: null,
   });
 
+  const isOwnProfile = !userId || userId === currentUserId;
+
   // Fetch profile data and public dreams
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const targetUserId = userId || currentUserId;
         const [profileResponse, publicDreamsResponse, totalDreamsResponse] = await Promise.all([
-          fetch(`/api/profile/${userId || currentUserId}`, {
-            credentials: "include",
-          }),
-          fetch(`/api/dreams/public/${userId || currentUserId}`),
-          fetch(`/api/dreams/count/${userId || currentUserId}`),
+          fetch(`/api/profile/${targetUserId}`),
+          fetch(`/api/dreams/public/${targetUserId}`),
+          fetch(`/api/dreams/count/${targetUserId}`),
         ]);
+
+        if (!profileResponse.ok) {
+          throw new Error("Failed to fetch profile");
+        }
 
         const profileData = await profileResponse.json();
         const dreamsData = await publicDreamsResponse.json();
@@ -37,13 +42,24 @@ const Profile = () => {
 
         setProfile({ ...profileData, totalDreams: totalDreamsData.count });
         setPublicDreams(dreamsData);
-        setEditForm({
-          name: profileData.name || "",
-          bio: profileData.bio || "",
-          picture: profileData.picture || null,
-        });
+
+        if (isOwnProfile) {
+          setEditForm({
+            name: profileData.name || "",
+            bio: profileData.bio || "",
+            picture: profileData.picture || null,
+          });
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
+        // If profile not found, create a default view
+        setProfile({
+          name: "Anonymous Dreamer",
+          bio: "",
+          picture: "/assets/profilepic.png",
+          totalDreams: 0,
+          publicDreamCount: 0,
+        });
       } finally {
         setLoading(false);
       }
@@ -52,7 +68,7 @@ const Profile = () => {
     if (currentUserId) {
       fetchData();
     }
-  }, [userId, currentUserId]);
+  }, [userId, currentUserId, isOwnProfile]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -156,99 +172,107 @@ const Profile = () => {
     return <div className="profile-loading">Loading profile...</div>;
   }
 
-  const isOwnProfile = !userId || userId === currentUserId;
-
   return (
     <div className="Profile-container">
       <StarryBackground />
       <div className="u-flex">
         <h1>Profile</h1>
+        <div className="header-right">
+          <Link to="/gallery" className="gallery-button">Gallery</Link>
+        </div>
       </div>
 
-      {isEditing ? (
-        <form onSubmit={handleSubmit} className="profile-edit-form">
-          <div className="edit-form-content">
-            <div className="profile-picture-upload">
-              <img
-                src={editForm.picture || profile?.picture || "/assets/profilepic.png"}
-                alt="Profile"
-                className="profile-avatar"
-              />
-              <div className="upload-overlay">
-                <label htmlFor="picture-upload" className="upload-button">
-                  Change Picture
-                  <input
-                    id="picture-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    style={{ display: "none" }}
-                  />
-                </label>
-              </div>
-            </div>
-            <div className="edit-form-fields">
-              <div className="form-group">
-                <label>Name</label>
-                <input
-                  type="text"
-                  value={editForm.name}
-                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  placeholder="Your name"
-                />
-              </div>
-              <div className="form-group">
-                <label>Bio</label>
-                <textarea
-                  value={editForm.bio}
-                  onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
-                  placeholder="Tell us about yourself"
-                />
-              </div>
-              <button type="submit" className="save-profile-button">
-                Save Profile
-              </button>
-            </div>
-          </div>
-        </form>
+      {loading ? (
+        <div>Loading...</div>
       ) : (
         <div className="profile-content">
-          <div className="profile-header">
-            <div className="profile-avatar-container">
-              <img
-                src={profile?.picture || "/assets/profilepic.png"}
-                alt="Profile"
-                className="profile-avatar"
-              />
-            </div>
-            <div className="profile-info">
-              <h1>{userProfile?.name || profile?.name || "Dreamer"}</h1>
-              <p className="profile-bio">{profile?.bio || "No bio yet..."}</p>
-              <div className="profile-stats">
-                <div className="stat">
-                  <span className="stat-value">{publicDreams.length}</span>
-                  <span className="stat-label">Public Dreams</span>
+          {isOwnProfile && !isEditing && (
+            <button className="edit-profile-button" onClick={() => setIsEditing(true)}>
+              Edit Profile
+            </button>
+          )}
+
+          {isEditing ? (
+            <form onSubmit={handleSubmit} className="profile-edit-form">
+              <div className="edit-form-content">
+                <div className="profile-picture-upload">
+                  <img
+                    src={editForm.picture || profile?.picture || "/assets/profilepic.png"}
+                    alt="Profile"
+                    className="profile-avatar"
+                  />
+                  <div className="upload-overlay">
+                    <label htmlFor="picture-upload" className="upload-button">
+                      Change Picture
+                      <input
+                        id="picture-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        style={{ display: "none" }}
+                      />
+                    </label>
+                  </div>
                 </div>
-                <div className="stat">
-                  <span className="stat-value">{profile?.totalDreams || 0}</span>
-                  <span className="stat-label">Total Dreams</span>
+                <div className="edit-form-fields">
+                  <div className="form-group">
+                    <label>Name</label>
+                    <input
+                      type="text"
+                      value={editForm.name}
+                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                      placeholder="Your name"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Bio</label>
+                    <textarea
+                      value={editForm.bio}
+                      onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                      placeholder="Tell us about yourself"
+                    />
+                  </div>
+                  <button type="submit" className="save-profile-button">
+                    Save Profile
+                  </button>
                 </div>
               </div>
-            </div>
-            {isOwnProfile && (
-              <button className="edit-profile-button" onClick={() => setIsEditing(!isEditing)}>
-                {isEditing ? "Cancel" : "Edit Profile"}
-              </button>
-            )}
-          </div>
+            </form>
+          ) : (
+            <>
+              <div className="profile-header">
+                <div className="profile-avatar-container">
+                  <img
+                    src={profile?.picture || "/assets/profilepic.png"}
+                    alt="Profile"
+                    className="profile-avatar"
+                  />
+                </div>
+                <div className="profile-info">
+                  <h1>{profile?.name || "Anonymous Dreamer"}</h1>
+                  <p className="profile-bio">{profile?.bio || "No bio yet..."}</p>
+                  <div className="profile-stats">
+                    <div className="stat">
+                      <span className="stat-value">{profile?.publicDreamCount || 0}</span>
+                      <span className="stat-label">Public Dreams</span>
+                    </div>
+                    <div className="stat">
+                      <span className="stat-value">{profile?.totalDreams || 0}</span>
+                      <span className="stat-label">Total Dreams</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="profile-dreams">
+                <h2>Public Dreams</h2>
+                <MiniGallery dreams={publicDreams} userId={currentUserId} />
+                {publicDreams.length === 0 && <p className="no-dreams">No public dreams yet</p>}
+              </div>
+            </>
+          )}
         </div>
       )}
-
-      <div className="profile-dreams">
-        <h2>Public Dreams</h2>
-        <MiniGallery dreams={publicDreams} userId={currentUserId} />
-        {publicDreams.length === 0 && <p className="no-dreams">No public dreams yet</p>}
-      </div>
     </div>
   );
 };

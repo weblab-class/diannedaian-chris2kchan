@@ -69,13 +69,13 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) =
     }
   };
 
-  const handleProfileClick = (commentUserId) => {
+  const handleProfileClick = (commentUserId, googleId) => {
     onClose(); // Close the post first
-    // If it's your own comment or you're the dream owner, go to editable profile
-    if (commentUserId === userId || dream.userId === userId) {
+    // If it's your own comment, go to editable profile
+    if (commentUserId === userId) {
       navigate("/profile");
     } else {
-      navigate(`/profile/${commentUserId}`);
+      navigate(`/profile/${googleId}`);
     }
   };
 
@@ -140,7 +140,7 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) =
 
         <div 
           className="PublicPost-profile-section" 
-          onClick={() => handleProfileClick(dream.userId)}
+          onClick={() => handleProfileClick(dream.userId, dream.userId)}
         >
           <img
             src={dream.userProfile?.picture || "/assets/profilepic.png"}
@@ -177,7 +177,7 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams }) =
               <div key={comment._id} className="PublicPost-comment">
                 <div 
                   className="PublicPost-comment-header"
-                  onClick={() => handleProfileClick(comment.userId._id)}
+                  onClick={() => handleProfileClick(comment.userId._id, comment.userId.googleid)}
                 >
                   <img
                     src={comment.userId.picture || "/assets/profilepic.png"}

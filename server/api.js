@@ -411,18 +411,13 @@ router.post("/profile", auth.ensureLoggedIn, async (req, res) => {
   }
 });
 
-// Get profile by userId
+// Get user profile by ID
 router.get("/profile/:userId", async (req, res) => {
   try {
-    let profile = await Profile.findOne({ userId: req.params.userId });
-
+    const profile = await Profile.findOne({ userId: req.params.userId });
     if (!profile) {
-      // Create default profile if it doesn't exist
-      profile = new Profile({ userId: req.params.userId });
-      await profile.updateDreamCounts();
-      await profile.save();
+      return res.status(404).json({ error: "Profile not found" });
     }
-
     res.json(profile);
   } catch (error) {
     console.error("Error fetching profile:", error);
@@ -530,7 +525,10 @@ router.post(
 router.get("/comments/:dreamId", async (req, res) => {
   try {
     const comments = await Comment.find({ dreamId: req.params.dreamId })
-      .populate("userId", ["name", "picture"])
+      .populate({
+        path: "userId",
+        select: ["name", "picture", "googleid"],
+      })
       .sort({ dateCreated: 1 });
     res.send(comments);
   } catch (err) {
@@ -555,7 +553,10 @@ router.post("/comment", auth.ensureLoggedIn, async (req, res) => {
     });
 
     await comment.save();
-    await comment.populate("userId", ["name", "picture"]);
+    await comment.populate({
+      path: "userId",
+      select: ["name", "picture", "googleid"],
+    });
 
     console.log("Created comment:", comment);
     res.send(comment);
