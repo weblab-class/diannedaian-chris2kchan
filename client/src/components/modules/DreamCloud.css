@@ -4,11 +4,13 @@
   align-items: center;
   justify-content: center;
   z-index: 2;
-  animation: cloudAppear 0.5s ease-out;
   cursor: pointer;
-  transition: transform 0.2s ease;
   left: 50%;
   width: clamp(150px, 20vw, 250px);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  perspective: 1000;
 }
 
 /* Ensure weird clouds match the size of other clouds */
@@ -19,35 +21,33 @@
 }
 
 .DreamCloud-left {
-  transform: translateX(calc(-100% - 5vw));
+  transform: translate3d(calc(-100% - 5vw), 0, 0);
 }
 
 .DreamCloud-right {
-  transform: translateX(2vw);
+  transform: translate3d(2vw, 0, 0);
 }
 
-.DreamCloud-left:hover {
-  transform: translateX(calc(-100% - 5vw)) scale(1.1);
-}
-
-.DreamCloud-right:hover {
-  transform: translateX(2vw) scale(1.1);
-}
-
+.DreamCloud-left:hover,
 .DreamCloud-left:focus {
-  outline: none;
-  transform: translateX(calc(-100% - 5vw)) scale(1.1);
+  transform: translate3d(calc(-100% - 5vw), 0, 0) scale3d(1.1, 1.1, 1);
 }
 
+.DreamCloud-right:hover,
 .DreamCloud-right:focus {
+  transform: translate3d(2vw, 0, 0) scale3d(1.1, 1.1, 1);
+}
+
+.DreamCloud:focus {
   outline: none;
-  transform: translateX(2vw) scale(1.1);
 }
 
 .DreamCloud-image {
   width: 100%;
   height: auto;
   position: relative;
+  opacity: 0;
+  animation: cloudAppear 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .DreamCloud-date {
@@ -60,26 +60,28 @@
   pointer-events: none;
   text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
   opacity: 0;
-  animation: dateAppear 0.5s ease-out forwards;
+  animation: dateAppear 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   animation-delay: 0.1s;
 }
 
 @keyframes cloudAppear {
   from {
     opacity: 0;
-    transform: translateX(-50%) scale(0.5);
+    transform: translate3d(0, 20px, 0);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) scale(1);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 @keyframes dateAppear {
   from {
     opacity: 0;
+    transform: translate3d(0, 10px, 0);
   }
   to {
     opacity: 1;
+    transform: translate3d(0, 0, 0);
   }
 }

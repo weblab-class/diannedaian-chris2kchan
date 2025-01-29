@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import "./DreamCloud.css";
 import "../../fonts.css";
 
-const DreamCloud = ({ dream, position, onDreamClick }) => {
-  // Determine which set of clouds to use based on tags
-  const getCloudSet = (dream) => {
+const DreamCloudComponent = ({ dream, position, onDreamClick }) => {
+  // Memoize the cloud set function
+  const getCloudSet = useCallback((dream) => {
     if (!dream || !Array.isArray(dream.tags)) {
       return ["/assets/cloud1.png", "/assets/cloud2.png", "/assets/cloud3.png"];
     }
@@ -22,27 +22,25 @@ const DreamCloud = ({ dream, position, onDreamClick }) => {
     } else {
       return ["/assets/cloud1.png", "/assets/cloud2.png", "/assets/cloud3.png"];
     }
-  };
+  }, []); // Empty dependency array since it doesn't depend on any props
 
-  // Get appropriate cloud set and cycle through them
-  const clouds = getCloudSet(dream);
+  // Memoize clouds array and cloudImage
+  const clouds = useMemo(() => getCloudSet(dream), [dream, getCloudSet]);
   const cloudIndex = Math.floor(position / 400) % clouds.length;
   const cloudImage = clouds[cloudIndex];
 
-  // Determine if cloud should be on left or right side based on vertical position
+  // Memoize position calculations
   const isRightSide = Math.floor(position / 300) % 2 === 0;
   const cloudPosition = isRightSide ? 'right' : 'left';
 
-  // Format the date - handle both string timestamps and Date objects
-  const getFormattedDate = (dream) => {
+  // Memoize date formatting
+  const formattedDate = useMemo(() => {
     if (!dream) return "No Date";
 
     try {
-      // Try different date fields in order of preference
       const dateStr = dream.dateCreated || dream.date || dream.timestamp;
       if (!dateStr) return "No Date";
 
-      // Try parsing as ISO string
       const date = new Date(dateStr);
       if (!isNaN(date.getTime())) {
         return date.toLocaleDateString("en-US", {
@@ -57,29 +55,39 @@ const DreamCloud = ({ dream, position, onDreamClick }) => {
       console.error("Error parsing date:", error);
       return "Invalid Date";
     }
-  };
+  }, [dream]);
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (onDreamClick && dream) {
       onDreamClick(dream);
     }
-  };
+  }, [onDreamClick, dream]);
 
   if (!dream) return null;
 
   return (
     <div
       className={`DreamCloud DreamCloud-${cloudPosition}`}
-      style={{ top: `${position}px` }}
+      style={{ 
+        top: `${position}px`,
+        willChange: 'transform' 
+      }}
       onClick={handleClick}
       tabIndex={0}
       role="button"
-      aria-label={`View dream from ${getFormattedDate(dream)}`}
+      aria-label={`View dream from ${formattedDate}`}
     >
-      <img src={cloudImage} alt="Dream Cloud" className="DreamCloud-image" />
-      <div className="DreamCloud-date">{getFormattedDate(dream)}</div>
+      <img 
+        src={cloudImage} 
+        alt="Dream Cloud" 
+        className="DreamCloud-image"
+        loading="lazy"
+      />
+      <div className="DreamCloud-date">{formattedDate}</div>
     </div>
   );
 };
+
+const DreamCloud = React.memo(DreamCloudComponent);
 
 export default DreamCloud;
