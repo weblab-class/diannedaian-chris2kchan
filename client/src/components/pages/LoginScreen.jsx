@@ -4,10 +4,12 @@ import "./LoginScreen.css";
 import loginBg from "../../assets/login.png";
 import login1 from "../../assets/login1.png";
 import login2 from "../../assets/login2.png";
+import BackgroundMusic from "../modules/BackgroundMusic";
 
 const LoginScreen = ({ handleLogin }) => {
   return (
     <div className="LoginScreen-container" style={{ backgroundImage: `url(${loginBg})` }}>
+      <BackgroundMusic />
       <div className="login-screen">
         <h1>Welcome to Dreamscape</h1>
         <p>Log in to start generating and logging your dreams.</p>

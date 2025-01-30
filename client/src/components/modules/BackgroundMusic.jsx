@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import "./BackgroundMusic.css";
 
 const BackgroundMusic = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const audioRef = useRef(new Audio("/assets/dreammusic.mp3"));
 
   useEffect(() => {
