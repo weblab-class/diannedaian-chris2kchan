@@ -74,18 +74,18 @@ const DreamCloudComponent = ({ dream, position, onDreamClick }) => {
   return (
     <div
       className={`DreamCloud DreamCloud-${cloudPosition}`}
-      style={{ 
+      style={{
         top: `${position}px`,
-        willChange: 'transform' 
+        willChange: 'transform'
       }}
       onClick={handleClick}
       tabIndex={0}
       role="button"
       aria-label={`View dream from ${formattedDate}`}
     >
-      <img 
-        src={cloudImage} 
-        alt="Dream Cloud" 
+      <img
+        src={cloudImage}
+        alt="Dream Cloud"
         className="DreamCloud-image"
         loading="lazy"
         onLoad={handleImageLoad}
