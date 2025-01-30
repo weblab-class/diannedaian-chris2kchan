@@ -58,6 +58,35 @@
   padding: 12px;
 }
 
+.Gallery-search-header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.Gallery-sort-select {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-family: "Pixelify Sans", sans-serif;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.Gallery-sort-select:hover {
+  border-color: #6b8afd;
+}
+
+.Gallery-sort-select:focus {
+  border-color: #6b8afd;
+  box-shadow: 0 0 0 2px rgba(107, 138, 253, 0.2);
+}
+
 .Gallery-search-input-wrapper {
   display: flex;
   align-items: center;
@@ -208,11 +237,65 @@
   z-index: 1;
 }
 
+.Gallery-image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 .Gallery-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+  transition: transform 0.3s ease;
+}
+
+.Gallery-hover-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  padding: 20px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.Gallery-date {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  font-style: italic;
+}
+
+.Gallery-stats {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+.Gallery-stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.Gallery-stat-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .Gallery-loading {
@@ -256,4 +339,13 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+.Gallery-image-container:hover .Gallery-hover-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.Gallery-image-container:hover .Gallery-image {
+  transform: scale(1.05);
 }

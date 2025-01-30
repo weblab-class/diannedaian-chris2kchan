@@ -26,6 +26,7 @@ const Gallery = () => {
   const [availableTags, setAvailableTags] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isTagListOpen, setIsTagListOpen] = useState(false);
+  const [sortOption, setSortOption] = useState("latest");
   const searchContainerRef = useRef(null);
   const searchInputRef = useRef(null);
 
@@ -56,26 +57,52 @@ const Gallery = () => {
   }, [allDreams]);
 
   useEffect(() => {
-    // Filter dreams based on selected tags
-    if (selectedTags.length === 0) {
-      setDreams(allDreams);
-    } else {
-      const filteredDreams = allDreams.filter(dream => 
-        selectedTags.every(selectedTag =>
-          dream.tags?.some(tag => tag.text.toLowerCase() === selectedTag.toLowerCase())
+    // First filter by tags
+    let filteredDreams = allDreams;
+    if (selectedTags.length > 0) {
+      filteredDreams = allDreams.filter((dream) =>
+        selectedTags.every((tag) =>
+          dream.tags.some((dreamTag) => dreamTag.text.toLowerCase() === tag.toLowerCase())
         )
       );
-      setDreams(filteredDreams);
-      setSelectedDream(null);
-      setSelectedIndex(null);
     }
-  }, [selectedTags, allDreams]);
+
+    // Then sort the filtered dreams
+    const sortedDreams = [...filteredDreams].sort((a, b) => {
+      switch (sortOption) {
+        case "latest":
+          return new Date(b.date) - new Date(a.date);
+        case "oldest":
+          return new Date(a.date) - new Date(b.date);
+        case "most_liked":
+          return (b.likesCount || 0) - (a.likesCount || 0);
+        case "most_commented":
+          return (b.commentsCount || 0) - (a.commentsCount || 0);
+        default:
+          return 0;
+      }
+    });
+
+    setDreams(sortedDreams);
+  }, [sortOption, allDreams, selectedTags]);
 
   const loadDreams = async () => {
     try {
       const response = await get("/api/public-dreams");
-      setAllDreams(response);
-      setDreams(response);
+      // For each dream, fetch its likes and comments count
+      const dreamsWithCounts = await Promise.all(response.map(async (dream) => {
+        const [likesResponse, commentsResponse] = await Promise.all([
+          get(`/api/likes/${dream._id}`),
+          get(`/api/comments/${dream._id}`)
+        ]);
+        return {
+          ...dream,
+          likesCount: likesResponse.likes,
+          commentsCount: commentsResponse.length
+        };
+      }));
+      setAllDreams(dreamsWithCounts);
+      setDreams(dreamsWithCounts);
       setLoading(false);
     } catch (error) {
       console.error("Failed to fetch dreams:", error);
@@ -151,6 +178,14 @@ const Gallery = () => {
     )
   );
 
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
   if (loading) {
     return (
       <div className="Gallery-loading">
@@ -197,7 +232,7 @@ const Gallery = () => {
           />
         ) : (
           <div className="Gallery-search-content">
-            <div className="Gallery-search-input-wrapper">
+            <div className="Gallery-search-header">
               <input
                 ref={searchInputRef}
                 type="text"
@@ -207,6 +242,18 @@ const Gallery = () => {
                 placeholder="Search tags..."
                 className="Gallery-tag-search"
               />
+              <div className="Gallery-sort-options">
+                <select 
+                  value={sortOption} 
+                  onChange={(e) => setSortOption(e.target.value)}
+                  className="Gallery-sort-select"
+                >
+                  <option value="latest">Latest</option>
+                  <option value="oldest">Oldest</option>
+                  <option value="most_liked">Most Liked</option>
+                  <option value="most_commented">Most Commented</option>
+                </select>
+              </div>
               {selectedTags.length > 0 && (
                 <button className="Gallery-clear-search" onClick={handleClearTags}>
                   Clear All
@@ -258,12 +305,27 @@ const Gallery = () => {
             onClick={() => handleDreamClick(dream, index)}
           >
             {dream.imageUrl ? (
-              <img
-                src={dream.imageUrl}
-                alt="Dream visualization"
-                className="Gallery-image"
-                loading="lazy"
-              />
+              <div className="Gallery-image-container">
+                <img
+                  src={dream.imageUrl}
+                  alt="Dream visualization"
+                  className="Gallery-image"
+                  loading="lazy"
+                />
+                <div className="Gallery-hover-overlay">
+                  <div className="Gallery-date">{formatDate(dream.date)}</div>
+                  <div className="Gallery-stats">
+                    <div className="Gallery-stat">
+                      <img src="/assets/liked.png" alt="Likes" className="Gallery-stat-icon" />
+                      <span>{dream.likesCount || 0}</span>
+                    </div>
+                    <div className="Gallery-stat">
+                      <img src="/assets/comment.png" alt="Comments" className="Gallery-stat-icon" />
+                      <span>{dream.commentsCount || 0}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="Gallery-placeholder">No image</div>
             )}

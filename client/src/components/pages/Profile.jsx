@@ -49,12 +49,25 @@ const Profile = () => {
         const dreamsData = await publicDreamsResponse.json();
         const dreamCountsData = await dreamCountsResponse.json();
 
+        // Fetch likes and comments counts for each dream
+        const dreamsWithCounts = await Promise.all(dreamsData.map(async (dream) => {
+          const [likesResponse, commentsResponse] = await Promise.all([
+            fetch(`/api/likes/${dream._id}`).then(res => res.json()),
+            fetch(`/api/comments/${dream._id}`).then(res => res.json())
+          ]);
+          return {
+            ...dream,
+            likesCount: likesResponse.likes,
+            commentsCount: commentsResponse.length
+          };
+        }));
+
         setProfile({
           ...profileData,
           totalDreams: dreamCountsData.totalDreams,
           publicDreamCount: dreamCountsData.publicDreams
         });
-        setPublicDreams(dreamsData);
+        setPublicDreams(dreamsWithCounts);
 
         if (isOwnProfile) {
           setEditForm({

@@ -10,19 +10,19 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams, onD
   const [newComment, setNewComment] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [likes, setLikes] = useState(0);
+  const [userLiked, setUserLiked] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     // Prevent background scrolling when post is open
     document.body.style.overflow = 'hidden';
+    fetchComments();
+    fetchLikes();
     return () => {
       // Restore scrolling when post is closed
       document.body.style.overflow = 'unset';
     };
-  }, []);
-
-  useEffect(() => {
-    fetchComments();
   }, [dream._id]);
 
   const fetchComments = async () => {
@@ -35,6 +35,16 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams, onD
       console.error("Error fetching comments:", err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchLikes = async () => {
+    try {
+      const response = await get(`/api/likes/${dream._id}`);
+      setLikes(response.likes);
+      setUserLiked(response.userLiked);
+    } catch (err) {
+      console.error("Error fetching likes:", err);
     }
   };
 
@@ -67,6 +77,17 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams, onD
     } catch (err) {
       console.error("Error posting comment:", err);
       alert("Failed to post comment. Please try again.");
+    }
+  };
+
+  const handleLike = async () => {
+    if (!userId) return;
+    try {
+      const response = await post("/api/like", { dreamId: dream._id });
+      setUserLiked(response.liked);
+      setLikes(prev => response.liked ? prev + 1 : prev - 1);
+    } catch (err) {
+      console.error("Error toggling like:", err);
     }
   };
 
@@ -173,16 +194,30 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams, onD
 
         <div 
           className="PublicPost-profile-section" 
-          onClick={() => handleProfileClick(dream.userId)}
+          onClick={() => handleProfileClick(dream.creator._id)}
         >
           <img
-            src={dream.userProfile?.picture || "/assets/profilepic.png"}
+            src={dream.creator.picture}
             alt="Profile"
             className="PublicPost-profile-pic"
           />
           <span className="PublicPost-username">
-            {dream.userProfile?.name || "Anonymous Dreamer"}
+            {dream.creator.name}
           </span>
+        </div>
+
+        <div className="PublicPost-interactions">
+          <button 
+            className={`PublicPost-likeButton ${userLiked ? 'liked' : ''}`} 
+            onClick={handleLike}
+          >
+            <img 
+              src={userLiked ? "/assets/liked.png" : "/assets/unliked.png"} 
+              alt={userLiked ? "Unlike" : "Like"} 
+              className="PublicPost-likeIcon"
+            />
+            <span className="PublicPost-likeCount">{likes}</span>
+          </button>
         </div>
 
         <div className="PublicPost-comments">
@@ -230,7 +265,7 @@ const PublicPost = ({ dream, onClose, onNavigate, currentIndex, totalDreams, onD
           )}
         </div>
 
-        {userId === dream.userId && (
+        {userId === dream.creator._id && (
           <button 
             className="PublicPost-deleteButton" 
             onClick={handleDelete}

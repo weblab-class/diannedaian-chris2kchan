@@ -6,6 +6,14 @@ const MiniGallery = ({ dreams, userId, onDreamsChange }) => {
   const [selectedDream, setSelectedDream] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
 
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
   const handleDreamClick = (dream, index) => {
     setSelectedDream(dream);
     setSelectedIndex(index);
@@ -44,39 +52,28 @@ const MiniGallery = ({ dreams, userId, onDreamsChange }) => {
             onClick={() => handleDreamClick(dream, index)}
           >
             {dream.imageUrl ? (
-              <div className="mini-dream-preview">
+              <div className="mini-dream-container">
                 <img 
                   src={dream.imageUrl} 
                   alt="Dream visualization" 
                   className="mini-dream-image"
                 />
                 <div className="mini-dream-overlay">
-                  <div className="mini-dream-text">{dream.text}</div>
-                  <div className="mini-dream-date">
-                    {new Date(dream.date).toLocaleDateString()}
-                  </div>
-                  <div className="mini-dream-tags">
-                    {dream.tags.map((tag) => (
-                      <span 
-                        key={tag.id} 
-                        className="mini-dream-tag"
-                        style={{ backgroundColor: tag.color }}
-                      >
-                        {tag.text}
-                      </span>
-                    ))}
+                  <div className="mini-dream-date">{formatDate(dream.date)}</div>
+                  <div className="mini-dream-stats">
+                    <div className="mini-dream-stat">
+                      <img src="/assets/liked.png" alt="Likes" className="mini-dream-stat-icon" />
+                      <span>{dream.likesCount || 0}</span>
+                    </div>
+                    <div className="mini-dream-stat">
+                      <img src="/assets/comment.png" alt="Comments" className="mini-dream-stat-icon" />
+                      <span>{dream.commentsCount || 0}</span>
+                    </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="mini-dream-preview no-image">
-                <div className="mini-dream-text-only">
-                  {dream.text}
-                </div>
-                <div className="mini-dream-date">
-                  {new Date(dream.date).toLocaleDateString()}
-                </div>
-              </div>
+              <div className="mini-dream-placeholder">No image</div>
             )}
           </div>
         ))}

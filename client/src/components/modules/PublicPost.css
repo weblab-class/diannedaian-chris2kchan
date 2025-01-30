@@ -502,3 +502,61 @@
   cursor: not-allowed;
   transform: none;
 }
+
+.PublicPost-interactions {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  top: 78%;  /* Position it below the dream text */
+  right: 45%;  /* Position it in the right column */
+  z-index: 10;
+}
+
+.PublicPost-likeButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.PublicPost-likeButton:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  transform: scale(1.05);
+}
+
+.PublicPost-likeIcon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.PublicPost-likeButton:hover .PublicPost-likeIcon {
+  transform: scale(1.1);
+}
+
+.PublicPost-likeCount {
+  font-size: 16px;
+  color: #666;
+  font-weight: 500;
+  min-width: 20px;
+  text-align: left;
+}
+
+@keyframes likeAnimation {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.PublicPost-likeButton.liked .PublicPost-likeIcon {
+  animation: likeAnimation 0.3s ease;
+}

@@ -54,6 +54,7 @@ const router = express.Router();
 
 // import models so we can interact with the database
 const User = require("./models/user");
+const Like = require("./models/like");
 
 // import the OpenAI API
 const axios = require("axios");
@@ -287,7 +288,11 @@ router.get("/public-dreams", async (req, res) => {
       const userProfile = userProfiles.find((p) => p.dreamId.equals(dream._id));
       return {
         ...dream.toObject(),
-        userProfile: userProfile.profile,
+        creator: {
+          _id: dream.userId,
+          name: userProfile.profile.name,
+          picture: userProfile.profile.picture
+        }
       };
     });
 
@@ -319,7 +324,20 @@ router.get("/dreams/public/:userId", async (req, res) => {
       public: true,
     }).sort({ date: -1 });
 
-    res.json(dreams);
+    // Get profile for the creator
+    const profile = await Profile.findOne({ userId: req.params.userId });
+    
+    // Add creator information to each dream
+    const dreamsWithCreator = dreams.map(dream => ({
+      ...dream.toObject(),
+      creator: {
+        _id: req.params.userId,
+        name: profile?.name || "Anonymous Dreamer",
+        picture: profile?.picture || "/assets/profilepic.png"
+      }
+    }));
+
+    res.json(dreamsWithCreator);
   } catch (error) {
     console.error("Error fetching public dreams:", error);
     res.status(500).json({ error: "Failed to fetch public dreams" });
@@ -703,6 +721,39 @@ router.post("/profile/recalculate-counts", auth.ensureLoggedIn, async (req, res)
   } catch (error) {
     console.error("Error recalculating dream counts:", error);
     res.status(500).json({ error: "Failed to recalculate dream counts" });
+  }
+});
+
+// Like routes
+router.post("/like", auth.ensureLoggedIn, async (req, res) => {
+  try {
+    const { dreamId } = req.body;
+    const userId = req.user._id;
+
+    // Check if like already exists
+    const existingLike = await Like.findOne({ userId, dreamId });
+    if (existingLike) {
+      await Like.deleteOne({ _id: existingLike._id });
+      res.send({ liked: false });
+    } else {
+      const newLike = new Like({ userId, dreamId });
+      await newLike.save();
+      res.send({ liked: true });
+    }
+  } catch (err) {
+    console.error("Error in like route:", err);
+    res.status(500).send({ error: "Internal server error" });
+  }
+});
+
+router.get("/likes/:dreamId", auth.ensureLoggedIn, async (req, res) => {
+  try {
+    const likes = await Like.find({ dreamId: req.params.dreamId });
+    const userLiked = likes.some((like) => like.userId === req.user._id);
+    res.send({ likes: likes.length, userLiked });
+  } catch (err) {
+    console.error("Error in get likes route:", err);
+    res.status(500).send({ error: "Internal server error" });
   }
 });
 
