@@ -206,6 +206,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 75%;
+  margin-left: 10px;
 }
 
 .PublicPost-stamp {
