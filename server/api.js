@@ -98,7 +98,7 @@ router.post("/generate-dream-image", async (req, res) => {
 
     // Generate image using OpenAI
     const response = await openai.images.generate({
-      model: "dall-e-2",
+      model: "gpt-image-1",
       prompt: prompt,
       n: 1,
       size: "1024x1024",
