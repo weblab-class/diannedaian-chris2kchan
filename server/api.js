@@ -102,7 +102,6 @@ router.post("/generate-dream-image", async (req, res) => {
       prompt: prompt,
       n: 1,
       size: "1024x1024",
-      response_format: "url",
     });
 
     if (!response.data || response.data.length === 0) {
